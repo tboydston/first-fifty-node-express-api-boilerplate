@@ -14,6 +14,9 @@ router.post('/forgot-password', validate(authValidation.forgotPassword), authCon
 router.post('/reset-password', validate(authValidation.resetPassword), authController.resetPassword);
 router.post('/send-verification-email', auth(), authController.sendVerificationEmail);
 router.post('/verify-email', validate(authValidation.verifyEmail), authController.verifyEmail);
+router.post('/enable-mfa', auth(), authController.enableMfa);
+router.post('/verify-mfa', validate(authValidation.verifyMfa), authController.verifyMfa);
+router.post('/disable-mfa', validate(authValidation.disableMfa), authController.disableMfa);
 
 module.exports = router;
 
@@ -288,4 +291,124 @@ module.exports = router;
  *             example:
  *               code: 401
  *               message: verify email failed
+ */
+
+/**
+ * @swagger
+ * /auth/enable-mfa:
+ *   post:
+ *     summary: Begins enable MFA process
+ *     description: Begins the MFA enable process by sending creating and returning user specific MFA secret and url to be used with Google Authenticator, Authy, or similar TOTP app. MFA process is not completed until a valid MFA code is submitted to the /verify-mfa API.
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - mfaType
+ *             properties:
+ *               mfaType:
+ *                 description: Currently only TOPT MFA is available.
+ *                 type: string
+ *                 enum: ['totp']
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  mfaSecret:
+ *                      type: string
+ *                  otpauth:
+ *                      type: string
+ *                      format: uri
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "400":
+ *          description: MFA already enabled for account
+ *          content:
+ *             application/json:
+ *               schema:
+ *                   $ref: '#/components/schemas/Error'
+ *               example:
+ *                   code: 400
+ *                   message: MFA already enabled. To update MFA you must disable and then enable MFA again or if you no longer have access to your MFA device, contact support.
+ */
+
+/**
+ * @swagger
+ * /auth/verify-mfa:
+ *   post:
+ *     summary: Verify MFA token
+ *     description: Verifies submitted MFA token. If the user has a VERIFY_MFA token type then the API returns a fresh token. If this is the first time calling this API with a valid code MFA will be enabled for the user.
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - mfaToken
+ *             properties:
+ *               mfaToken:
+ *                 type: number
+ *     responses:
+ *       "204":
+ *         description: No content
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "400":
+ *          description: MFA token invalid.
+ *          content:
+ *             application/json:
+ *               schema:
+ *                   $ref: '#/components/schemas/Error'
+ *               example:
+ *                   code: 401
+ *                   message: Submitted MFA token is invalid or expired.
+ */
+
+/**
+ * @swagger
+ * /auth/disable-mfa:
+ *   post:
+ *     summary: Disable MFA
+ *     description: If a user has a valid MFA token they may disable MFA for their account. If the MFA device is lost they must contact support to disable MFA.
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - mfaToken
+ *             properties:
+ *               mfaToken:
+ *                 type: number
+ *     responses:
+ *       "204":
+ *         description: No content
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "400":
+ *          description: MFA code invalid.
+ *          content:
+ *             application/json:
+ *               schema:
+ *                   $ref: '#/components/schemas/Error'
+ *               example:
+ *                   code: 401
+ *                   message: Submitted MFA token is invalid or expired.
  */

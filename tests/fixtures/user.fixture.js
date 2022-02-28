@@ -14,6 +14,7 @@ const userOne = {
   password,
   role: 'user',
   isEmailVerified: false,
+  mfaEnabled: false,
 };
 
 const userTwo = {
@@ -23,6 +24,7 @@ const userTwo = {
   password,
   role: 'user',
   isEmailVerified: false,
+  mfaEnabled: false,
 };
 
 const admin = {
@@ -32,6 +34,33 @@ const admin = {
   password,
   role: 'admin',
   isEmailVerified: false,
+  mfaEnabled: false,
+};
+
+/**
+ * Generate an array of random, valid users.
+ * @param {number} num Number of users to generate.
+ * @param {obj} userOverrides Objects of overrides to the default users object. Example: {role:'admin'} would set all users to admin.
+ * @returns array
+ */
+const genRandomUsers = async (num, userOverrides = {}) => {
+  const users = [];
+  while (users.length < num) {
+    const user = {
+      _id: mongoose.Types.ObjectId(),
+      name: faker.name.findName(),
+      email: faker.internet.email().toLowerCase(),
+      password,
+      role: 'user',
+      isEmailVerified: false,
+      mfaEnabled: false,
+    };
+
+    Object.assign(user, userOverrides);
+
+    users.push(user);
+  }
+  return users;
 };
 
 const insertUsers = async (users) => {
@@ -43,4 +72,5 @@ module.exports = {
   userTwo,
   admin,
   insertUsers,
+  genRandomUsers,
 };

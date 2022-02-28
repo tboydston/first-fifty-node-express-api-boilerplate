@@ -4,16 +4,18 @@ const httpStatus = require('http-status');
 const httpMocks = require('node-mocks-http');
 const moment = require('moment');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { authenticator } = require('otplib');
 const app = require('../../src/app');
 const config = require('../../src/config/config');
 const auth = require('../../src/middlewares/auth');
-const { tokenService, emailService } = require('../../src/services');
+const { tokenService, emailService, userService, mfaService } = require('../../src/services');
 const ApiError = require('../../src/utils/ApiError');
 const setupTestDB = require('../utils/setupTestDB');
 const { User, Token } = require('../../src/models');
 const { roleRights } = require('../../src/config/roles');
 const { tokenTypes } = require('../../src/config/tokens');
-const { userOne, admin, insertUsers } = require('../fixtures/user.fixture');
+const { userOne, admin, insertUsers, genRandomUsers } = require('../fixtures/user.fixture');
 const { userOneAccessToken, adminAccessToken } = require('../fixtures/token.fixture');
 
 setupTestDB();
@@ -39,6 +41,8 @@ describe('Auth routes', () => {
         email: newUser.email,
         role: 'user',
         isEmailVerified: false,
+        mfaEnabled: false,
+        mfaType: 'totp',
       });
 
       const dbUser = await User.findById(res.body.user.id);
@@ -98,6 +102,8 @@ describe('Auth routes', () => {
         email: userOne.email,
         role: userOne.role,
         isEmailVerified: userOne.isEmailVerified,
+        mfaEnabled: false,
+        mfaType: 'totp',
       });
 
       expect(res.body.tokens).toEqual({
@@ -450,6 +456,266 @@ describe('Auth routes', () => {
         .send()
         .expect(httpStatus.UNAUTHORIZED);
     });
+  });
+
+  describe('POST /v1/auth/enable-mfa', () => {
+    test('should return 200 and mfaSecret and otpauth URL', async () => {
+      await insertUsers([userOne]);
+      const loginCredentials = {
+        email: userOne.email,
+        password: userOne.password,
+      };
+
+      const loginRes = await request(app).post('/v1/auth/login').send(loginCredentials).expect(httpStatus.OK);
+
+      const mfaRes = await request(app)
+        .post('/v1/auth/enable-mfa')
+        .set('Authorization', `Bearer ${loginRes.body.tokens.access.token}`)
+        .expect(httpStatus.OK);
+
+      expect(mfaRes.body).toEqual({
+        mfaSecret: expect.anything(),
+        otpauth: expect.anything(),
+      });
+    });
+
+    test('should return 401 if bearer invalid.', async () => {
+      await request(app).post('/v1/auth/enable-mfa').set('Authorization', `Bearer invalid`).expect(httpStatus.UNAUTHORIZED);
+    });
+
+    test('should return 401 error if MFA already enabled and secret already set.', async () => {
+      await insertUsers([userOne]);
+      const loginCredentials = {
+        email: userOne.email,
+        password: userOne.password,
+      };
+
+      const loginRes = await request(app).post('/v1/auth/login').send(loginCredentials).expect(httpStatus.OK);
+      await userService.updateUserById(loginRes.body.user.id, { mfaEnabled: true });
+
+      await request(app)
+        .post('/v1/auth/enable-mfa')
+        .set('Authorization', `Bearer ${loginRes.body.tokens.access.token}`)
+        .expect(httpStatus.BAD_REQUEST);
+    });
+  });
+
+  describe('POST /v1/auth/verify-mfa', () => {
+    test('should return 200 and validate first MF code enabling MFA for the account.', async () => {
+      await insertUsers([userOne]);
+      const loginCredentials = {
+        email: userOne.email,
+        password: userOne.password,
+      };
+
+      const loginRes = await request(app).post('/v1/auth/login').send(loginCredentials).expect(httpStatus.OK);
+
+      const mfaRes = await request(app)
+        .post('/v1/auth/enable-mfa')
+        .set('Authorization', `Bearer ${loginRes.body.tokens.access.token}`)
+        .expect(httpStatus.OK);
+
+      expect(mfaRes.body).toEqual({
+        mfaSecret: expect.anything(),
+        otpauth: expect.anything(),
+      });
+
+      const verifyRes = await request(app)
+        .post('/v1/auth/verify-mfa')
+        .set('Authorization', `Bearer ${loginRes.body.tokens.access.token}`)
+        .send({ mfaToken: authenticator.generate(mfaRes.body.mfaSecret) })
+        .expect(httpStatus.OK);
+
+      expect(verifyRes.body).toEqual({});
+
+      const userResult = await userService.getUserById(loginRes.body.user.id);
+
+      expect(userResult.mfaEnabled).toBe(true);
+    });
+    test('should return access and expiration token after logging in and completing MFA challenge.', async () => {
+      const testUser = (await genRandomUsers(1))[0];
+      const encryptedMfaSecret = await mfaService.generateEncryptedSecret();
+
+      testUser.mfaEnabled = true;
+      testUser.mfaSecret = encryptedMfaSecret.encryptedSecret;
+
+      await insertUsers([testUser]);
+      const loginCredentials = {
+        email: testUser.email,
+        password: testUser.password,
+      };
+
+      const loginRes = await request(app).post('/v1/auth/login').send(loginCredentials).expect(httpStatus.OK);
+
+      const verifyRes = await request(app)
+        .post('/v1/auth/verify-mfa')
+        .set('Authorization', `Bearer ${loginRes.body.tokens.verifyMfa.token}`)
+        .send({ mfaToken: authenticator.generate(encryptedMfaSecret.secret) })
+        .expect(httpStatus.OK);
+
+      expect(verifyRes.body).toEqual({
+        access: expect.anything(),
+        refresh: expect.anything(),
+      });
+    });
+    test('should return token type "verifyMfa" when MFA is fully enabled.', async () => {
+      const testUser = (await genRandomUsers(1))[0];
+      const encryptedMfaSecret = await mfaService.generateEncryptedSecret();
+
+      testUser.mfaEnabled = true;
+      testUser.mfaSecret = encryptedMfaSecret.encryptedSecret;
+
+      await insertUsers([testUser]);
+      const loginCredentials = {
+        email: testUser.email,
+        password: testUser.password,
+      };
+
+      const loginRes = await request(app).post('/v1/auth/login').send(loginCredentials).expect(httpStatus.OK);
+      const jwtPayload = jwt.verify(loginRes.body.tokens.verifyMfa.token, config.jwt.secret);
+
+      expect(jwtPayload.type).toBe('verifyMfa');
+    });
+    test('should return 401 error when submitting invalid MFA code.', async () => {
+      const testUser = (await genRandomUsers(1))[0];
+      const encryptedMfaSecret = await mfaService.generateEncryptedSecret();
+
+      testUser.mfaEnabled = true;
+      testUser.mfaSecret = encryptedMfaSecret.encryptedSecret;
+
+      await insertUsers([testUser]);
+      const loginCredentials = {
+        email: testUser.email,
+        password: testUser.password,
+      };
+
+      const loginRes = await request(app).post('/v1/auth/login').send(loginCredentials).expect(httpStatus.OK);
+
+      await request(app)
+        .post('/v1/auth/verify-mfa')
+        .set('Authorization', `Bearer ${loginRes.body.tokens.verifyMfa.token}`)
+        .send({ mfaToken: '000000' })
+        .expect(httpStatus.BAD_REQUEST);
+    });
+    test('should return 401 error when MFA is not enabled for account.', async () => {
+      const testUser = (await genRandomUsers(1))[0];
+
+      await insertUsers([testUser]);
+      const loginCredentials = {
+        email: testUser.email,
+        password: testUser.password,
+      };
+
+      const loginRes = await request(app).post('/v1/auth/login').send(loginCredentials).expect(httpStatus.OK);
+
+      const verifyRes = await request(app)
+        .post('/v1/auth/verify-mfa')
+        .set('Authorization', `Bearer ${loginRes.body.tokens.access.token}`)
+        .send({ mfaToken: '000000' })
+        .expect(httpStatus.BAD_REQUEST);
+
+      expect(verifyRes.body.message).toBe('TOTP MFA has not been enabled for this account.');
+    });
+  });
+});
+
+describe('POST /v1/auth/disable-mfa', () => {
+  test('should return 200 and disable MFA for account.', async () => {
+    const testUser = (await genRandomUsers(1))[0];
+    const encryptedMfaSecret = await mfaService.generateEncryptedSecret();
+
+    testUser.mfaEnabled = true;
+    testUser.mfaSecret = encryptedMfaSecret.encryptedSecret;
+
+    const userId = testUser._id.toString();
+
+    await insertUsers([testUser]);
+
+    const token = await tokenService.generateToken(
+      userId,
+      moment().add(config.jwt.accessExpirationMinutes, 'minutes'),
+      tokenTypes.ACCESS
+    );
+
+    await request(app)
+      .post('/v1/auth/disable-mfa')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ mfaToken: authenticator.generate(encryptedMfaSecret.secret) })
+      .expect(httpStatus.OK);
+
+    const userResult = await userService.getUserById(userId);
+
+    expect(userResult.mfaEnabled).toBe(false);
+    expect(userResult.mfaSecret).toBe('');
+  });
+  test('should return 401 if MFA secret is empty.', async () => {
+    const testUser = (await genRandomUsers(1))[0];
+    const encryptedMfaSecret = await mfaService.generateEncryptedSecret();
+
+    testUser.mfaEnabled = true;
+    testUser.mfaSecret = '';
+
+    const userId = testUser._id.toString();
+
+    await insertUsers([testUser]);
+
+    const token = await tokenService.generateToken(
+      userId,
+      moment().add(config.jwt.accessExpirationMinutes, 'minutes'),
+      tokenTypes.ACCESS
+    );
+
+    await request(app)
+      .post('/v1/auth/disable-mfa')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ mfaToken: authenticator.generate(encryptedMfaSecret.secret) })
+      .expect(httpStatus.BAD_REQUEST);
+  });
+  test('should return 401 if MFA is disabled.', async () => {
+    const testUser = (await genRandomUsers(1))[0];
+    const encryptedMfaSecret = await mfaService.generateEncryptedSecret();
+
+    testUser.mfaEnabled = false;
+    testUser.mfaSecret = encryptedMfaSecret.encryptedSecret;
+
+    const userId = testUser._id.toString();
+
+    await insertUsers([testUser]);
+
+    const token = await tokenService.generateToken(
+      userId,
+      moment().add(config.jwt.accessExpirationMinutes, 'minutes'),
+      tokenTypes.ACCESS
+    );
+
+    await request(app)
+      .post('/v1/auth/disable-mfa')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ mfaToken: authenticator.generate(encryptedMfaSecret.secret) })
+      .expect(httpStatus.BAD_REQUEST);
+  });
+  test('should return 401 if MFA token is invalid', async () => {
+    const testUser = (await genRandomUsers(1))[0];
+    const encryptedMfaSecret = await mfaService.generateEncryptedSecret();
+
+    testUser.mfaEnabled = false;
+    testUser.mfaSecret = encryptedMfaSecret.encryptedSecret;
+
+    const userId = testUser._id.toString();
+
+    await insertUsers([testUser]);
+
+    const token = await tokenService.generateToken(
+      userId,
+      moment().add(config.jwt.accessExpirationMinutes, 'minutes'),
+      tokenTypes.ACCESS
+    );
+
+    await request(app)
+      .post('/v1/auth/disable-mfa')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ mfaToken: '000000' })
+      .expect(httpStatus.BAD_REQUEST);
   });
 });
 

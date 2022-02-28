@@ -1,6 +1,6 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
-const { authService, userService, tokenService, emailService } = require('../services');
+const { authService, userService, tokenService, emailService, mfaService } = require('../services');
 
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
@@ -11,7 +11,14 @@ const register = catchAsync(async (req, res) => {
 const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
   const user = await authService.loginUserWithEmailAndPassword(email, password);
-  const tokens = await tokenService.generateAuthTokens(user);
+  let tokens = {};
+
+  if (user.mfaEnabled === true) {
+    tokens = await tokenService.generateVerifyMfaToken(user);
+  } else {
+    tokens = await tokenService.generateAuthTokens(user);
+  }
+
   res.send({ user, tokens });
 });
 
@@ -47,6 +54,21 @@ const verifyEmail = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const enableMfa = catchAsync(async (req, res) => {
+  const mfaSecret = await mfaService.enableTotpMfa(req.headers.authorization.split(' ')[1]);
+  res.send(mfaSecret).send();
+});
+
+const verifyMfa = catchAsync(async (req, res) => {
+  const tokens = await mfaService.verifyLoginMfa(req.headers.authorization.split(' ')[1], req.body.mfaToken);
+  res.send({ ...tokens });
+});
+
+const disableMfa = catchAsync(async (req, res) => {
+  const tokens = await mfaService.disableMfa(req.headers.authorization.split(' ')[1], req.body.mfaToken);
+  res.send({ ...tokens });
+});
+
 module.exports = {
   register,
   login,
@@ -56,4 +78,7 @@ module.exports = {
   resetPassword,
   sendVerificationEmail,
   verifyEmail,
+  enableMfa,
+  verifyMfa,
+  disableMfa,
 };

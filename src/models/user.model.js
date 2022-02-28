@@ -44,6 +44,20 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    mfaEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    mfaType: {
+      type: String,
+      enum: ['totp'],
+      default: 'totp',
+    },
+    mfaSecret: {
+      type: String,
+      required: false,
+      private: true,
+    },
   },
   {
     timestamps: true,

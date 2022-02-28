@@ -48,12 +48,13 @@ const saveToken = async (token, userId, expires, type, blacklisted = false) => {
 /**
  * Verify token and return token doc (or throw an error if it is not valid)
  * @param {string} token
- * @param {string} type
+ * @param {string|array} types
  * @returns {Promise<Token>}
  */
-const verifyToken = async (token, type) => {
+const verifyToken = async (token, types) => {
+  const typesArray = Array.isArray(types) ? types : [types];
   const payload = jwt.verify(token, config.jwt.secret);
-  const tokenDoc = await Token.findOne({ token, type, user: payload.sub, blacklisted: false });
+  const tokenDoc = await Token.findOne({ token, type: { $in: typesArray }, user: payload.sub, blacklisted: false });
   if (!tokenDoc) {
     throw new Error('Token not found');
   }
@@ -113,6 +114,22 @@ const generateVerifyEmailToken = async (user) => {
   return verifyEmailToken;
 };
 
+/**
+ * Generate verify MFA login token
+ * @param {User} user
+ * @returns {Promise<Object>}
+ */
+const generateVerifyMfaToken = async (user) => {
+  const expires = moment().add(config.jwt.verifyMfaExpirationMinutes, 'minutes');
+  const verifyMfaToken = generateToken(user.id, expires, tokenTypes.VERIFY_MFA);
+  return {
+    verifyMfa: {
+      token: verifyMfaToken,
+      expires: expires.toDate(),
+    },
+  };
+};
+
 module.exports = {
   generateToken,
   saveToken,
@@ -120,4 +137,5 @@ module.exports = {
   generateAuthTokens,
   generateResetPasswordToken,
   generateVerifyEmailToken,
+  generateVerifyMfaToken,
 };

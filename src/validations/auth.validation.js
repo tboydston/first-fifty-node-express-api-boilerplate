@@ -49,6 +49,24 @@ const verifyEmail = {
   }),
 };
 
+const enableMfa = {
+  body: Joi.object().keys({
+    mfaType: Joi.string().required().valid('totp'),
+  }),
+};
+
+const verifyMfa = {
+  body: Joi.object().keys({
+    mfaToken: Joi.string().required(),
+  }),
+};
+
+const disableMfa = {
+  body: Joi.object().keys({
+    mfaToken: Joi.string().required(),
+  }),
+};
+
 module.exports = {
   register,
   login,
@@ -57,4 +75,7 @@ module.exports = {
   forgotPassword,
   resetPassword,
   verifyEmail,
+  verifyMfa,
+  enableMfa,
+  disableMfa,
 };
