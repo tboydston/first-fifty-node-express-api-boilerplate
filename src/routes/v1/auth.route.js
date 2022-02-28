@@ -403,7 +403,7 @@ module.exports = router;
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  *       "400":
- *          description: MFA code invalid.
+ *          description: MFA token invalid.
  *          content:
  *             application/json:
  *               schema:
