@@ -58,6 +58,8 @@ cp .env.example .env
 - [Error Handling](#error-handling)
 - [Validation](#validation)
 - [Authentication](#authentication)
+- [Multi-Factor Authentication(MFA)](#multi-factor-authentication-mfa)
+- [Captcha](#captcha)
 - [Authorization](#authorization)
 - [Logging](#logging)
 - [Custom Mongoose Plugins](#custom-mongoose-plugins)
@@ -77,6 +79,8 @@ cp .env.example .env
 - **Dependency management**: with [Yarn](https://yarnpkg.com)
 - **Environment variables**: using [dotenv](https://github.com/motdotla/dotenv) and [cross-env](https://github.com/kentcdodds/cross-env#readme)
 - **Security**: set security HTTP headers using [helmet](https://helmetjs.github.io)
+- **MFA**: validate TOTP tokens ( [Google Authenicator](https://www.google.com/landing/2step/), [Authy](https://authy.com/) ) using [otplib](https://github.com/yeojz/otplib)
+- **Captcha**: validate response tokens for [reCaptchaV2, reCaptchaV3](https://www.google.com/recaptcha/about/), and [hCaptcha](https://www.hcaptcha.com/)
 - **Santizing**: sanitize request data against xss and query injection
 - **CORS**: Cross-Origin Resource-Sharing enabled using [cors](https://github.com/expressjs/cors)
 - **Compression**: gzip compression with [compression](https://github.com/expressjs/compression)
@@ -184,6 +188,18 @@ MFA_ENCRYPTION_KEY_ITERATIONS=10
 MFA_ENCRYPTION_SECRET=thisisasampletextkey
 # Initialization Vector used encrypt/decrypt MFA secrets stored in database. Size is dependant on chosen cipher algorithm.
 MFA_ENCRYPTION_IV=fb1f4b0a7daaada6cae678df32fad0f0
+
+# Captcha
+# This is a global option to enable or disable all captcha response validation.
+CAPTCHA_ENABLED=true
+# Captcha service used. Currently supported options: reCaptchaV2, reCaptchaV3, hCaptcha
+CAPTCHA_PROVIDER=reCaptchaV2
+# Secret issued by captcha provider Note: 6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe is Googles demo key.
+CAPTCHA_SECRET=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
+# Threshold uses when no specific override is defined. Note: Only used by reCaptchaV3 and hCaptcha enterprise. Also note reCaptcha and hCaptcha us inverse scoring methods so make sure to invert the value if you switch providers. 
+CAPTCHA_DEFAULT_SCORE_THRESHOLD=0.50
+# Override score values for specific routes. Object key should be the path returned in req.path usual "/path".
+CAPTCHA_PATH_SCORE_THRESHOLD_OVERRIDES= {"/demo":0.9}  
 ```
 
 ## Project Structure
@@ -357,6 +373,17 @@ When MFA is enabled by the user they will be required to submit a valid MFA toke
 ### Disable MFA
 
 If a customer has enabled MFA they may disabled it be calling the disable MFA endpoint (`POST /v1/auth/disable-mfa`) with a JWT of type 'access' and a valid MFA token generated from their current TOTP device. Once disabled a MFA token is no longer required to login. If the user has lost their TOTP device they will need to contact an administrator to disable MFA.
+
+## Captcha
+
+The captcha middleware supports reCaptchaV2, score based reCaptchaV3, hCaptcha, and score based hCaptcha Enterprise response token validation. To enable captcha validations you can add the captcha middleware to a route middleware chain that you would like to validate captcha responses. 
+
+```javascript
+router.post('/register-captcha-test', captcha.verify, validate(authValidation.register), authController.register);
+```
+
+The API expects the response token to be in the 'Captcha-Response-Token' header. 
+
 
 ## Logging
 
