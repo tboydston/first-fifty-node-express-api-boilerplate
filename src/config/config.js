@@ -51,6 +51,26 @@ const envVarsSchema = Joi.object()
       .description(
         'Initialization Vector used encrypt MFA secrets stored in database. Size is dependant on chosen cipher algorithm.'
       ),
+    CAPTCHA_ENABLED: Joi.bool()
+      .default('false')
+      .description('This is a global option to enable or disable all captcha response validation.'),
+    CAPTCHA_PROVIDER: Joi.string()
+      .valid('reCaptchaV2', 'reCaptchaV3', 'hCaptcha')
+      .default('reCaptchaV2')
+      .description('Captcha service used. Currently supported options: reCaptchaV2, reCaptchaV3, hCaptcha'),
+    CAPTCHA_DEFAULT_SCORE_THRESHOLD: Joi.number()
+      .default(0.5)
+      .description(
+        'Threshold uses when no specific override is defined. Note: Only used by reCaptchaV3 and hCaptcha enterprise. Also note reCaptcha and hCaptcha us inverse scoring methods so make sure to invert the value if you switch providers.'
+      ),
+    CAPTCHA_PATH_SCORE_THRESHOLD_OVERRIDES: Joi.string()
+      .default('{}')
+      .description(
+        'Override score values for specific routes. Object key should be the path returned in req.path usual "/path".'
+      ),
+    CAPTCHA_SECRET: Joi.string().description(
+      'Secret issued by captcha provider Note: 6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe is Googles demo key using it wall cause all test to pass.'
+    ),
   })
   .unknown();
 
@@ -97,5 +117,14 @@ module.exports = {
       },
     },
     from: envVars.EMAIL_FROM,
+  },
+  captcha: {
+    enabled: envVars.CAPTCHA_ENABLED,
+    provider: envVars.CAPTCHA_PROVIDER,
+    secret: envVars.CAPTCHA_SECRET,
+    scoreThresholds: {
+      default: envVars.CAPTCHA_DEFAULT_SCORE_THRESHOLD,
+      overrides: JSON.parse(envVars.CAPTCHA_PATH_SCORE_THRESHOLD_OVERRIDES),
+    },
   },
 };

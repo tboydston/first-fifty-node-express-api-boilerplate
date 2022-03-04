@@ -5,6 +5,7 @@ const httpMocks = require('node-mocks-http');
 const moment = require('moment');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
 const { authenticator } = require('otplib');
 const app = require('../../src/app');
 const config = require('../../src/config/config');
@@ -83,6 +84,62 @@ describe('Auth routes', () => {
       newUser.password = '11111111';
 
       await request(app).post('/v1/auth/register').send(newUser).expect(httpStatus.BAD_REQUEST);
+    });
+  });
+
+  describe('POST /v1/auth/register-captcha-test', () => {
+    let newUser;
+
+    beforeEach(() => {
+      newUser = {
+        name: faker.name.findName(),
+        email: faker.internet.email().toLowerCase(),
+        password: 'password1',
+      };
+    });
+
+    test('should return 201 and successfully register user if request data is ok', async () => {
+      const res = await request(app)
+        .post('/v1/auth/register-captcha-test')
+        .send(newUser)
+        .set('Captcha-Response-Token', 'test')
+        .expect(httpStatus.CREATED);
+
+      expect(res.body.user).not.toHaveProperty('password');
+      expect(res.body.user).toEqual({
+        id: expect.anything(),
+        name: newUser.name,
+        email: newUser.email,
+        role: 'user',
+        isEmailVerified: false,
+        mfaEnabled: false,
+        mfaType: 'totp',
+      });
+
+      const dbUser = await User.findById(res.body.user.id);
+      expect(dbUser).toBeDefined();
+      expect(dbUser.password).not.toBe(newUser.password);
+      expect(dbUser).toMatchObject({ name: newUser.name, email: newUser.email, role: 'user', isEmailVerified: false });
+
+      expect(res.body.tokens).toEqual({
+        access: { token: expect.anything(), expires: expect.anything() },
+        refresh: { token: expect.anything(), expires: expect.anything() },
+      });
+    });
+
+    test('should return 401 when captcha is invalid.', async () => {
+      const axiosResponse = {
+        data: {
+          success: false,
+        },
+      };
+      jest.spyOn(axios, 'post').mockReturnValue(axiosResponse);
+
+      await request(app)
+        .post('/v1/auth/register-captcha-test')
+        .send(newUser)
+        .set('Captcha-Response-Token', 'test')
+        .expect(httpStatus.UNAUTHORIZED);
     });
   });
 

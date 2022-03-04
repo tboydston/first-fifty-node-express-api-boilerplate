@@ -1,5 +1,7 @@
 const express = require('express');
+const config = require('../../config/config');
 const validate = require('../../middlewares/validate');
+const captcha = require('../../middlewares/captcha');
 const authValidation = require('../../validations/auth.validation');
 const authController = require('../../controllers/auth.controller');
 const auth = require('../../middlewares/auth');
@@ -17,6 +19,10 @@ router.post('/verify-email', validate(authValidation.verifyEmail), authControlle
 router.post('/enable-mfa', auth(), authController.enableMfa);
 router.post('/verify-mfa', validate(authValidation.verifyMfa), authController.verifyMfa);
 router.post('/disable-mfa', validate(authValidation.disableMfa), authController.disableMfa);
+
+if (config.env === 'test') {
+  router.post('/register-captcha-test', captcha.verify, validate(authValidation.register), authController.register);
+}
 
 module.exports = router;
 
