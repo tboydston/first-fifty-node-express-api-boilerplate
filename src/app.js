@@ -8,7 +8,8 @@ const passport = require('passport');
 const httpStatus = require('http-status');
 const config = require('./config/config');
 const morgan = require('./config/morgan');
-const { jwtStrategy } = require('./config/passport');
+const { jwtStrategy } = require('./config/passport-jwt');
+const { facebookStrategy } = require('./config/passport-facebook');
 const { authLimiter } = require('./middlewares/rateLimiter');
 const routes = require('./routes/v1');
 const { errorConverter, errorHandler } = require('./middlewares/error');
@@ -45,9 +46,17 @@ app.options('*', cors());
 app.use(passport.initialize());
 passport.use('jwt', jwtStrategy);
 
+// Social login strategies.
+passport.use('facebook', facebookStrategy);
+
 // limit repeated failed requests to auth endpoints
 if (config.env === 'production') {
   app.use('/v1/auth', authLimiter);
+}
+
+// Make demo frontend available on /demo path.
+if (config.demoEnabled) {
+  app.use('/demo', express.static(`${__dirname}/demo`));
 }
 
 // v1 api routes

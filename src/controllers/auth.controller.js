@@ -1,4 +1,5 @@
 const httpStatus = require('http-status');
+const passport = require('passport');
 const catchAsync = require('../utils/catchAsync');
 const { authService, userService, tokenService, emailService, mfaService } = require('../services');
 
@@ -69,6 +70,28 @@ const disableMfa = catchAsync(async (req, res) => {
   res.send({ ...tokens });
 });
 
+const loginFacebook = catchAsync(async (req, res) => {
+  await passport.authenticate('facebook', { session: false }, async (err, user) => {
+    if (err || !user) {
+      return res.redirect('/login');
+    }
+
+    let tokens = {};
+
+    if (user.mfaEnabled === true) {
+      tokens = await tokenService.generateVerifyMfaToken(user);
+    } else {
+      tokens = await tokenService.generateAuthTokens(user);
+    }
+
+    const cookiePayload = { user, tokens };
+
+    res.cookie('auth', JSON.stringify(cookiePayload), { domain: 'Replace' });
+
+    res.send({ user, tokens });
+  });
+});
+
 module.exports = {
   register,
   login,
@@ -81,4 +104,5 @@ module.exports = {
   enableMfa,
   verifyMfa,
   disableMfa,
+  loginFacebook,
 };

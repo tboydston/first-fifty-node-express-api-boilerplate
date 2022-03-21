@@ -1329,6 +1329,11 @@
     "mixin-deep" "^1.2.0"
     "pascalcase" "^0.1.1"
 
+"base64url@3.x.x":
+  "integrity" "sha512-ir1UPr3dkwexU7FdV8qBBbNDRUhMmIekYMFZfi+C/sLNnRESKPl23nB9b2pltqfOQNnGzsDdId90AEtG5tCx4A=="
+  "resolved" "https://registry.npmjs.org/base64url/-/base64url-3.0.1.tgz"
+  "version" "3.0.1"
+
 "basic-auth@~2.0.1":
   "integrity" "sha512-NF+epuEdnUYVlGuhaxbbq+dvJttwLnGY+YixlXlME5KpQ5W3CnXA5cVTneY3SPbPDRkcjMbifrwmFYcClgOZeg=="
   "resolved" "https://registry.npmjs.org/basic-auth/-/basic-auth-2.0.1.tgz"
@@ -5091,6 +5096,11 @@
   "resolved" "https://registry.npmjs.org/oauth-sign/-/oauth-sign-0.9.0.tgz"
   "version" "0.9.0"
 
+"oauth@0.9.x":
+  "integrity" "sha1-vR/vr2hslrdUda7VGWQS/2DPucE="
+  "resolved" "https://registry.npmjs.org/oauth/-/oauth-0.9.15.tgz"
+  "version" "0.9.15"
+
 "object-assign@^4":
   "integrity" "sha1-IQmtx5ZYh8/AXLvUQsrIv7s2CGM="
   "resolved" "https://registry.npmjs.org/object-assign/-/object-assign-4.1.1.tgz"
@@ -5379,6 +5389,13 @@
   "resolved" "https://registry.npmjs.org/pascalcase/-/pascalcase-0.1.1.tgz"
   "version" "0.1.1"
 
+"passport-facebook@^3.0.0":
+  "integrity" "sha512-K/qNzuFsFISYAyC1Nma4qgY/12V3RSLFdFVsPKXiKZt434wOvthFW1p7zKa1iQihQMRhaWorVE1o3Vi1o+ZgeQ=="
+  "resolved" "https://registry.npmjs.org/passport-facebook/-/passport-facebook-3.0.0.tgz"
+  "version" "3.0.0"
+  dependencies:
+    "passport-oauth2" "1.x.x"
+
 "passport-jwt@^4.0.0":
   "integrity" "sha512-BwC0n2GP/1hMVjR4QpnvqA61TxenUMlmfNjYNgK0ZAs0HK4SOQkHcSv4L328blNTLtHq7DbmvyNJiH+bn6C5Mg=="
   "resolved" "https://registry.npmjs.org/passport-jwt/-/passport-jwt-4.0.0.tgz"
@@ -5386,6 +5403,17 @@
   dependencies:
     "jsonwebtoken" "^8.2.0"
     "passport-strategy" "^1.0.0"
+
+"passport-oauth2@1.x.x":
+  "integrity" "sha512-ZbV43Hq9d/SBSYQ22GOiglFsjsD1YY/qdiptA+8ej+9C1dL1TVB+mBE5kDH/D4AJo50+2i8f4bx0vg4/yDDZCQ=="
+  "resolved" "https://registry.npmjs.org/passport-oauth2/-/passport-oauth2-1.6.1.tgz"
+  "version" "1.6.1"
+  dependencies:
+    "base64url" "3.x.x"
+    "oauth" "0.9.x"
+    "passport-strategy" "1.x.x"
+    "uid2" "0.0.x"
+    "utils-merge" "1.x.x"
 
 "passport-strategy@^1.0.0", "passport-strategy@1.x.x":
   "integrity" "sha1-tVOaqPwiWj0a0XlHbd8ja0QPUuQ="
@@ -6970,6 +6998,11 @@
   dependencies:
     "is-typedarray" "^1.0.0"
 
+"uid2@0.0.x":
+  "integrity" "sha512-IevTus0SbGwQzYh3+fRsAMTVVPOoIVufzacXcHPmdlle1jUpq7BRL+mw3dgeLanvGZdwwbWhRV6XrcFNdBmjWA=="
+  "resolved" "https://registry.npmjs.org/uid2/-/uid2-0.0.4.tgz"
+  "version" "0.0.4"
+
 "unbox-primitive@^1.0.1":
   "integrity" "sha512-tZU/3NqK3dA5gpE1KtyiJUrEB0lxnGkMFHptJ7q6ewdZ8s12QrODwNbhIJStmJkd1QDXa1NRA8aF2A1zk/Ypyw=="
   "resolved" "https://registry.npmjs.org/unbox-primitive/-/unbox-primitive-1.0.1.tgz"
@@ -7070,7 +7103,7 @@
   "resolved" "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz"
   "version" "1.0.2"
 
-"utils-merge@1.0.1":
+"utils-merge@1.0.1", "utils-merge@1.x.x":
   "integrity" "sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM="
   "resolved" "https://registry.npmjs.org/utils-merge/-/utils-merge-1.0.1.tgz"
   "version" "1.0.1"

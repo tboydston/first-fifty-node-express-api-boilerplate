@@ -40,6 +40,7 @@ describe('User routes', () => {
         isEmailVerified: false,
         mfaEnabled: false,
         mfaType: 'totp',
+        credentialType: 'local',
       });
 
       const dbUser = await User.findById(res.body.id);
@@ -168,6 +169,7 @@ describe('User routes', () => {
         isEmailVerified: userOne.isEmailVerified,
         mfaEnabled: false,
         mfaType: 'totp',
+        credentialType: 'local',
       });
     });
 
@@ -373,6 +375,7 @@ describe('User routes', () => {
         isEmailVerified: userOne.isEmailVerified,
         mfaEnabled: false,
         mfaType: 'totp',
+        credentialType: 'local',
       });
     });
 
@@ -508,6 +511,7 @@ describe('User routes', () => {
         isEmailVerified: false,
         mfaEnabled: false,
         mfaType: 'totp',
+        credentialType: 'local',
       });
 
       const dbUser = await User.findById(userOne._id);

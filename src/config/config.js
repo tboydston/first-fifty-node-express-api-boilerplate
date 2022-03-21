@@ -10,6 +10,12 @@ const envVarsSchema = Joi.object()
   .keys({
     NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),
     PORT: Joi.number().default(3000),
+    PUBLIC_URL: Joi.string()
+      .required()
+      .description(
+        'Public URL of API. This is used for external services that require a callback URL and has no impact on the local URL used with "yarn start".'
+      ),
+    DEMO_ENABLED: Joi.bool().default(false).description('Enable a html demo site served out of the src/demo folder.'),
     MONGODB_URL: Joi.string().required().description('Mongo DB url'),
     JWT_SECRET: Joi.string().required().description('JWT secret key'),
     JWT_ACCESS_EXPIRATION_MINUTES: Joi.number().default(30).description('minutes after which access tokens expire'),
@@ -71,6 +77,11 @@ const envVarsSchema = Joi.object()
     CAPTCHA_SECRET: Joi.string().description(
       'Secret issued by captcha provider Note: 6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe is Googles demo key using it wall cause all test to pass.'
     ),
+    SL_FACEBOOK_ENABLED: Joi.bool()
+      .default('false')
+      .description('This is a global option to enable or disable all captcha response validation.'),
+    SL_FACEBOOK_CLIENT_ID: Joi.string().description('Facebook Client ID provided by Facebook.'),
+    SL_FACEBOOK_CLIENT_SECRET: Joi.string().description('Facebook Client Secret provided by Facebook.'),
   })
   .unknown();
 
@@ -82,7 +93,9 @@ if (error) {
 
 module.exports = {
   env: envVars.NODE_ENV,
+  publicUrl: envVars.PUBLIC_URL,
   port: envVars.PORT,
+  demoEnabled: envVars.DEMO_ENABLED,
   mongoose: {
     url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '-test' : ''),
     options: {
@@ -125,6 +138,13 @@ module.exports = {
     scoreThresholds: {
       default: envVars.CAPTCHA_DEFAULT_SCORE_THRESHOLD,
       overrides: JSON.parse(envVars.CAPTCHA_PATH_SCORE_THRESHOLD_OVERRIDES),
+    },
+  },
+  socialLogin: {
+    facebook: {
+      enabled: envVars.SL_FACEBOOK_ENABLED,
+      clientId: envVars.SL_FACEBOOK_CLIENT_ID,
+      clientSecret: envVars.SL_FACEBOOK_CLIENT_SECRET,
     },
   },
 };

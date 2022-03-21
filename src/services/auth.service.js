@@ -13,7 +13,7 @@ const { tokenTypes } = require('../config/tokens');
  */
 const loginUserWithEmailAndPassword = async (email, password) => {
   const user = await userService.getUserByEmail(email);
-  if (!user || !(await user.isPasswordMatch(password))) {
+  if (!user || !(await user.isPasswordMatch(password)) || user.credentialType === 'federated') {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect email or password');
   }
   return user;
@@ -61,7 +61,7 @@ const resetPassword = async (resetPasswordToken, newPassword) => {
   try {
     const resetPasswordTokenDoc = await tokenService.verifyToken(resetPasswordToken, tokenTypes.RESET_PASSWORD);
     const user = await userService.getUserById(resetPasswordTokenDoc.user);
-    if (!user) {
+    if (!user || user.credentialType === 'federated') {
       throw new Error();
     }
     await userService.updateUserById(user.id, { password: newPassword });

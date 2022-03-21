@@ -8,7 +8,7 @@ const userSchema = mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
     },
     email: {
@@ -57,6 +57,11 @@ const userSchema = mongoose.Schema(
       type: String,
       required: false,
       private: true,
+    },
+    credentialType: {
+      type: String,
+      enum: ['local', 'federated'],
+      default: 'local',
     },
   },
   {

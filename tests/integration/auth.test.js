@@ -44,6 +44,7 @@ describe('Auth routes', () => {
         isEmailVerified: false,
         mfaEnabled: false,
         mfaType: 'totp',
+        credentialType: 'local',
       });
 
       const dbUser = await User.findById(res.body.user.id);
@@ -114,6 +115,7 @@ describe('Auth routes', () => {
         isEmailVerified: false,
         mfaEnabled: false,
         mfaType: 'totp',
+        credentialType: 'local',
       });
 
       const dbUser = await User.findById(res.body.user.id);
@@ -161,6 +163,7 @@ describe('Auth routes', () => {
         isEmailVerified: userOne.isEmailVerified,
         mfaEnabled: false,
         mfaType: 'totp',
+        credentialType: 'local',
       });
 
       expect(res.body.tokens).toEqual({

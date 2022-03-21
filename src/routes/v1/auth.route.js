@@ -1,4 +1,5 @@
 const express = require('express');
+const passport = require('passport');
 const config = require('../../config/config');
 const validate = require('../../middlewares/validate');
 const captcha = require('../../middlewares/captcha');
@@ -19,6 +20,10 @@ router.post('/verify-email', validate(authValidation.verifyEmail), authControlle
 router.post('/enable-mfa', auth(), authController.enableMfa);
 router.post('/verify-mfa', validate(authValidation.verifyMfa), authController.verifyMfa);
 router.post('/disable-mfa', validate(authValidation.disableMfa), authController.disableMfa);
+
+router.get('/login/facebook', passport.authenticate('facebook', { scope: ['email', 'user_location'] }));
+
+router.get('/oauth2/redirect/facebook', authController.loginFacebook);
 
 if (config.env === 'test') {
   router.post('/register-captcha-test', captcha.verify, validate(authValidation.register), authController.register);
