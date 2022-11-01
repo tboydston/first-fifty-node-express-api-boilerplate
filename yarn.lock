@@ -4091,14 +4091,14 @@ module-details-from-path@^1.0.3:
   resolved "https://registry.npmjs.org/module-details-from-path/-/module-details-from-path-1.0.3.tgz"
 
 moment-timezone@^0.5.x:
-  version "0.5.33"
-  resolved "https://registry.npmjs.org/moment-timezone/-/moment-timezone-0.5.33.tgz"
+  version "0.5.38"
+  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.38.tgz#9674a5397b8be7c13de820fd387d8afa0f725aad"
   dependencies:
     moment ">= 2.9.0"
 
 "moment@>= 2.9.0", moment@^2.24.0:
-  version "2.29.1"
-  resolved "https://registry.npmjs.org/moment/-/moment-2.29.1.tgz"
+  version "2.29.4"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
 
 mongodb@3.7.3:
   version "3.7.3"
