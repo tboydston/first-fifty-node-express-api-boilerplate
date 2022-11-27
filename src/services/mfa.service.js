@@ -101,14 +101,15 @@ const verifyLoginMfa = async (verifyMfaToken, mfaToken) => {
     }
 
     if (jwtPayload.type === tokenTypes.VERIFY_MFA) {
-      return tokenService.generateAuthTokens(user);
+      const tokens = tokenService.generateAuthTokens(user);
+      return { user, tokens };
     }
 
     return {};
   } catch (error) {
     throw new ApiError(
       error.statusCode ? error.statusCode : httpStatus.UNAUTHORIZED,
-      error.message ? error.message : 'Enable MFA failed'
+      error.message ? error.message : 'Verify MFA failed'
     );
   }
 };
@@ -121,6 +122,7 @@ const verifyLoginMfa = async (verifyMfaToken, mfaToken) => {
 const enableTotpMfa = async (enableMfaToken) => {
   try {
     const jwtPayload = jwt.verify(enableMfaToken, config.jwt.secret);
+
     if (jwtPayload.type !== tokenTypes.ACCESS) {
       throw new Error();
     }
@@ -157,6 +159,7 @@ const enableTotpMfa = async (enableMfaToken) => {
 const disableMfa = async (disableMfaToken, mfaToken) => {
   try {
     const jwtPayload = jwt.verify(disableMfaToken, config.jwt.secret);
+
     if (jwtPayload.type !== tokenTypes.ACCESS) {
       throw new Error();
     }

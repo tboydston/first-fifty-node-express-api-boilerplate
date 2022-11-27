@@ -589,7 +589,7 @@ describe('Auth routes', () => {
 
       expect(userResult.mfaEnabled).toBe(true);
     });
-    test('should return access and expiration token after logging in and completing MFA challenge.', async () => {
+    test('should return { user, tokens } login object after completing MFA challenge.', async () => {
       const testUser = (await genRandomUsers(1))[0];
       const encryptedMfaSecret = await mfaService.generateEncryptedSecret();
 
@@ -611,8 +611,8 @@ describe('Auth routes', () => {
         .expect(httpStatus.OK);
 
       expect(verifyRes.body).toEqual({
-        access: expect.anything(),
-        refresh: expect.anything(),
+        user: expect.anything(),
+        tokens: expect.anything(),
       });
     });
     test('should return token type "verifyMfa" when MFA is fully enabled.', async () => {
@@ -677,7 +677,7 @@ describe('Auth routes', () => {
 });
 
 describe('POST /v1/auth/disable-mfa', () => {
-  test('should return 200 and disable MFA for account.', async () => {
+  test('should return 204 and disable MFA for account.', async () => {
     const testUser = (await genRandomUsers(1))[0];
     const encryptedMfaSecret = await mfaService.generateEncryptedSecret();
 
@@ -698,7 +698,7 @@ describe('POST /v1/auth/disable-mfa', () => {
       .post('/v1/auth/disable-mfa')
       .set('Authorization', `Bearer ${token}`)
       .send({ mfaToken: authenticator.generate(encryptedMfaSecret.secret) })
-      .expect(httpStatus.OK);
+      .expect(''); // httpStatus[204] would be better here but expect doesn't like httpStatus[204] because it sees the string 'No Content' instead of ''.
 
     const userResult = await userService.getUserById(userId);
 

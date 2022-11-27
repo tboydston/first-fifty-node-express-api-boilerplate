@@ -86,6 +86,7 @@ module.exports = router;
  * /auth/login:
  *   post:
  *     summary: Login
+ *     description: If MFA is enabled only a verifyMFA JWT will be returned instead of the full login { user , tokens } object. To fully login the user the verify MFA api must be called using the verifyMFA token.
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -114,10 +115,10 @@ module.exports = router;
  *             schema:
  *               type: object
  *               properties:
- *                 user:
- *                   $ref: '#/components/schemas/User'
- *                 tokens:
- *                   $ref: '#/components/schemas/AuthTokens'
+ *                  user:
+ *                    $ref: '#/components/schemas/User'
+ *                  tokens:
+ *                    $ref: '#/components/schemas/AuthTokens'
  *       "401":
  *         description: Invalid email or password
  *         content:
@@ -352,7 +353,7 @@ module.exports = router;
  * /auth/verify-mfa:
  *   post:
  *     summary: Verify MFA token
- *     description: Verifies submitted MFA token. If the user has a VERIFY_MFA token type then the API returns a fresh token. If this is the first time calling this API with a valid code MFA will be enabled for the user.
+ *     description: Verifies submitted MFA token and completes the login process if MFA is enabled for the user. Also exchanges the verifyMfa JWT for the complete { user, token } login object. If this is the first time calling this API with a valid code MFA will be enabled for the user.
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
@@ -368,8 +369,17 @@ module.exports = router;
  *               mfaToken:
  *                 type: number
  *     responses:
- *       "204":
- *         description: No content
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  user:
+ *                    $ref: '#/components/schemas/User'
+ *                  tokens:
+ *                    $ref: '#/components/schemas/AuthTokens'
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  *       "400":

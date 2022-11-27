@@ -15,11 +15,11 @@ const login = catchAsync(async (req, res) => {
 
   if (user.mfaEnabled === true) {
     tokens = await tokenService.generateVerifyMfaToken(user);
+    res.send({ tokens });
   } else {
     tokens = await tokenService.generateAuthTokens(user);
+    res.send({ user, tokens });
   }
-
-  res.send({ user, tokens });
 });
 
 const logout = catchAsync(async (req, res) => {
@@ -60,13 +60,13 @@ const enableMfa = catchAsync(async (req, res) => {
 });
 
 const verifyMfa = catchAsync(async (req, res) => {
-  const tokens = await mfaService.verifyLoginMfa(req.headers.authorization.split(' ')[1], req.body.mfaToken);
-  res.send({ ...tokens });
+  const userAndTokens = await mfaService.verifyLoginMfa(req.headers.authorization.split(' ')[1], req.body.mfaToken);
+  res.send(userAndTokens);
 });
 
 const disableMfa = catchAsync(async (req, res) => {
-  const tokens = await mfaService.disableMfa(req.headers.authorization.split(' ')[1], req.body.mfaToken);
-  res.send({ ...tokens });
+  await mfaService.disableMfa(req.headers.authorization.split(' ')[1], req.body.mfaToken);
+  res.status(httpStatus.NO_CONTENT).send();
 });
 
 module.exports = {
