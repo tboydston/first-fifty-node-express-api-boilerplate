@@ -101,7 +101,7 @@ const verifyLoginMfa = async (verifyMfaToken, mfaToken) => {
     }
 
     if (jwtPayload.type === tokenTypes.VERIFY_MFA) {
-      const tokens = tokenService.generateAuthTokens(user);
+      const tokens = await tokenService.generateAuthTokens(user);
       return { user, tokens };
     }
 
