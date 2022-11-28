@@ -316,13 +316,19 @@ describe('Auth routes', () => {
 
     test('should return 400 if email is missing', async () => {
       await insertUsers([userOne]);
-
       await request(app).post('/v1/auth/forgot-password').send().expect(httpStatus.BAD_REQUEST);
     });
 
-    test('should return 404 if email does not belong to any user', async () => {
+    config.forgotPassword.sendInvalidUserResponse = true;
+    test('should return 404 if email does not belong to any user and sendInvalidUserResponse=true', async () => {
       await request(app).post('/v1/auth/forgot-password').send({ email: userOne.email }).expect(httpStatus.NOT_FOUND);
     });
+
+    config.forgotPassword.sendInvalidUserResponse = false;
+    test('should return 204 event if email does not belong to any user and sendInvalidUserResponse=false', async () => {
+      await request(app).post('/v1/auth/forgot-password').send({ email: userOne.email }).expect(httpStatus.NOT_FOUND);
+    });
+    config.forgotPassword.sendInvalidUserResponse = process.env.FORGOT_PASSWORD_SEND_INVALID_USER_RESPONSE;
   });
 
   describe('POST /v1/auth/reset-password', () => {
@@ -348,7 +354,6 @@ describe('Auth routes', () => {
 
     test('should return 400 if reset password token is missing', async () => {
       await insertUsers([userOne]);
-
       await request(app).post('/v1/auth/reset-password').send({ password: 'password2' }).expect(httpStatus.BAD_REQUEST);
     });
 
