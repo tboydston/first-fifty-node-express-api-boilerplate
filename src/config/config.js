@@ -59,6 +59,9 @@ const envVarsSchema = Joi.object()
     CAPTCHA_ENABLED: Joi.bool()
       .default('false')
       .description('This is a global option to enable or disable all captcha response validation.'),
+    CAPTCHA_ROUTES: Joi.string()
+      .default('')
+      .description('This is a global option to enable or disable all captcha response validation.'),
     CAPTCHA_PROVIDER: Joi.string()
       .valid('reCaptchaV2', 'reCaptchaV3', 'hCaptcha')
       .default('reCaptchaV2')
@@ -128,6 +131,7 @@ module.exports = {
   },
   captcha: {
     enabled: envVars.CAPTCHA_ENABLED,
+    routes: envVars.CAPTCHA_ROUTES.split(','),
     provider: envVars.CAPTCHA_PROVIDER,
     secret: envVars.CAPTCHA_SECRET,
     scoreThresholds: {

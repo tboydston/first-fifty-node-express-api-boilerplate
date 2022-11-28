@@ -16,7 +16,7 @@ const verify = async (req, res, next) => {
       return next();
     }
 
-    if (config.env === 'prod' && config.captcha.secret === '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe') {
+    if (config.env === 'production' && config.captcha.secret === '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe') {
       logger.error('Test CAPTCHA key being used in production. All captcha validation requests will fail until updated.');
       throw new Error();
     }

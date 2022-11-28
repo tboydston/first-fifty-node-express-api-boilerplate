@@ -184,7 +184,7 @@ describe('Captcha middlewares', () => {
     });
     test('should return exception when env is prod but test key us used.', async () => {
       Object.assign(captcha.config.captcha, config.captcha);
-      captcha.config.env = 'prod';
+      captcha.config.env = 'production';
 
       const next = jest.fn();
       const req = {
