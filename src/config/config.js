@@ -26,6 +26,11 @@ const envVarsSchema = Joi.object()
     SMTP_USERNAME: Joi.string().description('username for email server'),
     SMTP_PASSWORD: Joi.string().description('password for email server'),
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
+    FORGOT_PASSWORD_SEND_INVALID_USER_RESPONSE: Joi.bool()
+      .default('false')
+      .description(
+        'If a user submits an email that does not belong to any user tell them this in the response. This can be a security risk as it allows an attacker to confirm whether a user exists or not.'
+      ),
     MFA_SERVICE_NAME: Joi.string()
       .default('Test MFA Service')
       .description('MFA service name that appears in authenticator app ( Google Authenticator, Authy, or similar )'),
@@ -98,6 +103,9 @@ module.exports = {
     resetPasswordExpirationMinutes: envVars.JWT_RESET_PASSWORD_EXPIRATION_MINUTES,
     verifyMfaExpirationMinutes: envVars.JWT_RESET_MFA_EXPIRATION_MINUTES,
     verifyEmailExpirationMinutes: envVars.JWT_VERIFY_EMAIL_EXPIRATION_MINUTES,
+  },
+  forgotPassword: {
+    sendInvalidUserResponse: envVars.FORGOT_PASSWORD_SEND_INVALID_USER_RESPONSE,
   },
   mfa: {
     serviceName: envVars.MFA_SERVICE_NAME,
