@@ -1,12 +1,12 @@
-# RESTful API Node Server Boilerplate
+# First 50% RESTful API Node Server Boilerplate
 
 [![Build Status](https://travis-ci.org/hagopj13/node-express-boilerplate.svg?branch=master)](https://travis-ci.org/hagopj13/node-express-boilerplate)
 [![Coverage Status](https://coveralls.io/repos/github/hagopj13/node-express-boilerplate/badge.svg?branch=master)](https://coveralls.io/github/hagopj13/node-express-boilerplate?branch=master)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-A boilerplate/starter project for quickly building RESTful APIs using Node.js, Express, and Mongoose.
+First fifty is a boilerplate/starter project for quickly building secure RESTful APIs using Node.js, Express, and Mongoose. 
 
-By running a single command, you will get a production-ready Node.js app installed and fully configured on your machine. The app comes with many built-in features, such as authentication using JWT, request validation, unit and integration tests, continuous integration, docker support, API documentation, pagination, etc. For more details, check the features list below.
+By running a single command you can complete the first tedious 50% of your project and deliver a production-ready Node.js app installed and fully configured. The app comes with many built-in features, such as authentication using JWT, MFA, request validation, unit and integration tests, continuous integration, docker support, API documentation, pagination, etc. For more details, check the features list below.
 
 <!-- ## Quick Start
 
@@ -509,6 +509,8 @@ To maintain a consistent coding style across different IDEs, the project contain
 Contributions are more than welcome! Please check out the [contributing guide](CONTRIBUTING.md).
 
 ## Inspirations
+
+This project is an extension of the work done by [hagopj13](https://github.com/hagopj13) in [node-express-boilerplate](https://github.com/hagopj13/node-express-boilerplate) which was itself inspired by the projects below.
 
 - [danielfsousa/express-rest-es2017-boilerplate](https://github.com/danielfsousa/express-rest-es2017-boilerplate)
 - [madhums/node-express-mongoose](https://github.com/madhums/node-express-mongoose)
