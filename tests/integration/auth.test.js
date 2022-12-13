@@ -1,3 +1,6 @@
+process.env.REGISTRATION_REQUIRED_FIELDS = 'firstName,lastName';
+process.env.LOGIN_ALLOW_USERNAME = false;
+
 const request = require('supertest');
 const faker = require('faker');
 const httpStatus = require('http-status');
@@ -26,7 +29,8 @@ describe('Auth routes', () => {
     let newUser;
     beforeEach(() => {
       newUser = {
-        name: faker.name.findName(),
+        firstName: faker.name.firstName(),
+        lastName: faker.name.lastName(),
         email: faker.internet.email().toLowerCase(),
         password: 'password1',
       };
@@ -38,7 +42,8 @@ describe('Auth routes', () => {
       expect(res.body.user).not.toHaveProperty('password');
       expect(res.body.user).toEqual({
         id: expect.anything(),
-        name: newUser.name,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
         email: newUser.email,
         role: 'user',
         isEmailVerified: false,
@@ -49,7 +54,13 @@ describe('Auth routes', () => {
       const dbUser = await User.findById(res.body.user.id);
       expect(dbUser).toBeDefined();
       expect(dbUser.password).not.toBe(newUser.password);
-      expect(dbUser).toMatchObject({ name: newUser.name, email: newUser.email, role: 'user', isEmailVerified: false });
+      expect(dbUser).toMatchObject({
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        role: 'user',
+        isEmailVerified: false,
+      });
 
       expect(res.body.tokens).toEqual({
         access: { token: expect.anything(), expires: expect.anything() },
@@ -92,7 +103,8 @@ describe('Auth routes', () => {
 
     beforeEach(() => {
       newUser = {
-        name: faker.name.findName(),
+        firstName: faker.name.firstName(),
+        lastName: faker.name.lastName(),
         email: faker.internet.email().toLowerCase(),
         password: 'password1',
       };
@@ -108,7 +120,8 @@ describe('Auth routes', () => {
       expect(res.body.user).not.toHaveProperty('password');
       expect(res.body.user).toEqual({
         id: expect.anything(),
-        name: newUser.name,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
         email: newUser.email,
         role: 'user',
         isEmailVerified: false,
@@ -119,7 +132,13 @@ describe('Auth routes', () => {
       const dbUser = await User.findById(res.body.user.id);
       expect(dbUser).toBeDefined();
       expect(dbUser.password).not.toBe(newUser.password);
-      expect(dbUser).toMatchObject({ name: newUser.name, email: newUser.email, role: 'user', isEmailVerified: false });
+      expect(dbUser).toMatchObject({
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        role: 'user',
+        isEmailVerified: false,
+      });
 
       expect(res.body.tokens).toEqual({
         access: { token: expect.anything(), expires: expect.anything() },
@@ -147,7 +166,7 @@ describe('Auth routes', () => {
     test('should return 200 and login user if email and password match', async () => {
       await insertUsers([userOne]);
       const loginCredentials = {
-        email: userOne.email,
+        login: userOne.email,
         password: userOne.password,
       };
 
@@ -155,7 +174,8 @@ describe('Auth routes', () => {
 
       expect(res.body.user).toEqual({
         id: expect.anything(),
-        name: userOne.name,
+        firstName: userOne.firstName,
+        lastName: userOne.lastName,
         email: userOne.email,
         role: userOne.role,
         isEmailVerified: userOne.isEmailVerified,
@@ -171,7 +191,7 @@ describe('Auth routes', () => {
 
     test('should return 401 error if there are no users with that email', async () => {
       const loginCredentials = {
-        email: userOne.email,
+        login: userOne.email,
         password: userOne.password,
       };
 
@@ -183,7 +203,7 @@ describe('Auth routes', () => {
     test('should return 401 error if password is wrong', async () => {
       await insertUsers([userOne]);
       const loginCredentials = {
-        email: userOne.email,
+        login: userOne.email,
         password: 'wrongPassword1',
       };
 
@@ -524,7 +544,7 @@ describe('Auth routes', () => {
     test('should return 200 and mfaSecret and otpauth URL', async () => {
       await insertUsers([userOne]);
       const loginCredentials = {
-        email: userOne.email,
+        login: userOne.email,
         password: userOne.password,
       };
 
@@ -548,7 +568,7 @@ describe('Auth routes', () => {
     test('should return 401 error if MFA already enabled and secret already set.', async () => {
       await insertUsers([userOne]);
       const loginCredentials = {
-        email: userOne.email,
+        login: userOne.email,
         password: userOne.password,
       };
 
@@ -566,7 +586,7 @@ describe('Auth routes', () => {
     test('should return 200 and validate first MF code enabling MFA for the account.', async () => {
       await insertUsers([userOne]);
       const loginCredentials = {
-        email: userOne.email,
+        login: userOne.email,
         password: userOne.password,
       };
 
@@ -603,7 +623,7 @@ describe('Auth routes', () => {
 
       await insertUsers([testUser]);
       const loginCredentials = {
-        email: testUser.email,
+        login: testUser.email,
         password: testUser.password,
       };
 
@@ -629,7 +649,7 @@ describe('Auth routes', () => {
 
       await insertUsers([testUser]);
       const loginCredentials = {
-        email: testUser.email,
+        login: testUser.email,
         password: testUser.password,
       };
 
@@ -647,7 +667,7 @@ describe('Auth routes', () => {
 
       await insertUsers([testUser]);
       const loginCredentials = {
-        email: testUser.email,
+        login: testUser.email,
         password: testUser.password,
       };
 
@@ -664,7 +684,7 @@ describe('Auth routes', () => {
 
       await insertUsers([testUser]);
       const loginCredentials = {
-        email: testUser.email,
+        login: testUser.email,
         password: testUser.password,
       };
 

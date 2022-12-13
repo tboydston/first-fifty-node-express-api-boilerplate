@@ -3,13 +3,42 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const { toJSON, paginate } = require('./plugins');
 const { roles } = require('../config/roles');
+const config = require('../config/config');
 
 const userSchema = mongoose.Schema(
   {
-    name: {
+    firstName: {
       type: String,
-      required: true,
+      required: config.registration.requiredFields.includes('firstName'),
       trim: true,
+    },
+    middleName: {
+      type: String,
+      required: false,
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      required: config.registration.requiredFields.includes('lastName'),
+      trim: true,
+    },
+    company: {
+      type: String,
+      required: config.registration.requiredFields.includes('company'),
+      trim: true,
+    },
+    userName: {
+      type: String,
+      required: config.registration.requiredFields.includes('userName'),
+      unique: true,
+      sparse: true,
+      trim: true,
+      validate(value) {
+        // Validation is different at the model level than at the API level because a UUID suffix of nine characters needs to be accommodated.
+        if (value.length < 3 || value.length > 39 || !value.match(/^[a-zA-Z0-9_.-]+$/)) {
+          throw new Error(`userName must be between 3 and 30 characters contain only '.' and '_'`);
+        }
+      },
     },
     email: {
       type: String,
@@ -76,6 +105,17 @@ userSchema.plugin(paginate);
  */
 userSchema.statics.isEmailTaken = async function (email, excludeUserId) {
   const user = await this.findOne({ email, _id: { $ne: excludeUserId } });
+  return !!user;
+};
+
+/**
+ * Check if userName is taken
+ * @param {string} userNames - The user's userName
+ * @param {ObjectId} [excludeUserId] - The id of the user to be excluded
+ * @returns {Promise<boolean>}
+ */
+userSchema.statics.isUserNameTaken = async function (userName, excludeUserId) {
+  const user = await this.findOne({ userName, _id: { $ne: excludeUserId } });
   return !!user;
 };
 

@@ -1,3 +1,7 @@
+process.env.REGISTRATION_REQUIRED_FIELDS = 'firstName,lastName';
+process.env.LOGIN_ALLOW_USERNAME = false;
+process.env.REGISTRATION_APPEND_UUID_TO_USERNAMES = false;
+
 const request = require('supertest');
 const faker = require('faker');
 const httpStatus = require('http-status');
@@ -11,11 +15,12 @@ setupTestDB();
 
 describe('User routes', () => {
   describe('POST /v1/users', () => {
-    let newUser;
+    let basicUser;
 
     beforeEach(() => {
-      newUser = {
-        name: faker.name.findName(),
+      basicUser = {
+        firstName: faker.name.firstName(),
+        lastName: faker.name.lastName(),
         email: faker.internet.email().toLowerCase(),
         password: 'password1',
         role: 'user',
@@ -24,19 +29,19 @@ describe('User routes', () => {
 
     test('should return 201 and successfully create new user if data is ok', async () => {
       await insertUsers([admin]);
-
       const res = await request(app)
         .post('/v1/users')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send(newUser)
+        .send(basicUser)
         .expect(httpStatus.CREATED);
 
       expect(res.body).not.toHaveProperty('password');
       expect(res.body).toEqual({
         id: expect.anything(),
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role,
+        firstName: basicUser.firstName,
+        lastName: basicUser.lastName,
+        email: basicUser.email,
+        role: basicUser.role,
         isEmailVerified: false,
         mfaEnabled: false,
         mfaType: 'totp',
@@ -44,18 +49,22 @@ describe('User routes', () => {
 
       const dbUser = await User.findById(res.body.id);
       expect(dbUser).toBeDefined();
-      expect(dbUser.password).not.toBe(newUser.password);
-      expect(dbUser).toMatchObject({ name: newUser.name, email: newUser.email, role: newUser.role, isEmailVerified: false });
+      expect(dbUser.password).not.toBe(basicUser.password);
+      expect(dbUser).toMatchObject({
+        email: basicUser.email,
+        role: basicUser.role,
+        isEmailVerified: false,
+      });
     });
 
     test('should be able to create an admin as well', async () => {
       await insertUsers([admin]);
-      newUser.role = 'admin';
+      basicUser.role = 'admin';
 
       const res = await request(app)
         .post('/v1/users')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send(newUser)
+        .send(basicUser)
         .expect(httpStatus.CREATED);
 
       expect(res.body.role).toBe('admin');
@@ -65,7 +74,7 @@ describe('User routes', () => {
     });
 
     test('should return 401 error if access token is missing', async () => {
-      await request(app).post('/v1/users').send(newUser).expect(httpStatus.UNAUTHORIZED);
+      await request(app).post('/v1/users').send(basicUser).expect(httpStatus.UNAUTHORIZED);
     });
 
     test('should return 403 error if logged in user is not admin', async () => {
@@ -74,70 +83,70 @@ describe('User routes', () => {
       await request(app)
         .post('/v1/users')
         .set('Authorization', `Bearer ${userOneAccessToken}`)
-        .send(newUser)
+        .send(basicUser)
         .expect(httpStatus.FORBIDDEN);
     });
 
     test('should return 400 error if email is invalid', async () => {
       await insertUsers([admin]);
-      newUser.email = 'invalidEmail';
+      basicUser.email = 'invalidEmail';
 
       await request(app)
         .post('/v1/users')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send(newUser)
+        .send(basicUser)
         .expect(httpStatus.BAD_REQUEST);
     });
 
     test('should return 400 error if email is already used', async () => {
       await insertUsers([admin, userOne]);
-      newUser.email = userOne.email;
+      basicUser.email = userOne.email;
 
       await request(app)
         .post('/v1/users')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send(newUser)
+        .send(basicUser)
         .expect(httpStatus.BAD_REQUEST);
     });
 
     test('should return 400 error if password length is less than 8 characters', async () => {
       await insertUsers([admin]);
-      newUser.password = 'passwo1';
+      basicUser.password = 'passwo1';
 
       await request(app)
         .post('/v1/users')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send(newUser)
+        .send(basicUser)
         .expect(httpStatus.BAD_REQUEST);
     });
 
     test('should return 400 error if password does not contain both letters and numbers', async () => {
       await insertUsers([admin]);
-      newUser.password = 'password';
+      basicUser.password = 'password';
 
       await request(app)
         .post('/v1/users')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send(newUser)
+        .send(basicUser)
         .expect(httpStatus.BAD_REQUEST);
 
-      newUser.password = '1111111';
+      basicUser.password = '1111111';
 
       await request(app)
         .post('/v1/users')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send(newUser)
+        .send(basicUser)
         .expect(httpStatus.BAD_REQUEST);
     });
 
     test('should return 400 error if role is neither user nor admin', async () => {
       await insertUsers([admin]);
-      newUser.role = 'invalid';
+      basicUser.role = 'invalid';
 
       await request(app)
         .post('/v1/users')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send(newUser)
+        .send(basicUser)
         .expect(httpStatus.BAD_REQUEST);
     });
   });
@@ -162,8 +171,9 @@ describe('User routes', () => {
       expect(res.body.results).toHaveLength(3);
       expect(res.body.results[0]).toEqual({
         id: userOne._id.toHexString(),
-        name: userOne.name,
         email: userOne.email,
+        firstName: userOne.firstName,
+        lastName: userOne.lastName,
         role: userOne.role,
         isEmailVerified: userOne.isEmailVerified,
         mfaEnabled: false,
@@ -193,7 +203,7 @@ describe('User routes', () => {
       const res = await request(app)
         .get('/v1/users')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .query({ name: userOne.name })
+        .query({ lastName: userOne.lastName })
         .send()
         .expect(httpStatus.OK);
 
@@ -282,7 +292,7 @@ describe('User routes', () => {
       const res = await request(app)
         .get('/v1/users')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .query({ sortBy: 'role:desc,name:asc' })
+        .query({ sortBy: 'role:desc,lastName:asc' })
         .send()
         .expect(httpStatus.OK);
 
@@ -302,7 +312,7 @@ describe('User routes', () => {
         if (a.role > b.role) {
           return -1;
         }
-        return a.name < b.name ? -1 : 1;
+        return a.lastName < b.lastName ? -1 : 1;
       });
 
       expectedOrder.forEach((user, index) => {
@@ -368,7 +378,8 @@ describe('User routes', () => {
       expect(res.body).toEqual({
         id: userOne._id.toHexString(),
         email: userOne.email,
-        name: userOne.name,
+        firstName: userOne.firstName,
+        lastName: userOne.lastName,
         role: userOne.role,
         isEmailVerified: userOne.isEmailVerified,
         mfaEnabled: false,
@@ -488,7 +499,8 @@ describe('User routes', () => {
     test('should return 200 and successfully update user if data is ok', async () => {
       await insertUsers([userOne]);
       const updateBody = {
-        name: faker.name.findName(),
+        firstName: faker.name.firstName(),
+        lastName: faker.name.lastName(),
         email: faker.internet.email().toLowerCase(),
         password: 'newPassword1',
       };
@@ -502,7 +514,8 @@ describe('User routes', () => {
       expect(res.body).not.toHaveProperty('password');
       expect(res.body).toEqual({
         id: userOne._id.toHexString(),
-        name: updateBody.name,
+        firstName: updateBody.firstName,
+        lastName: updateBody.lastName,
         email: updateBody.email,
         role: 'user',
         isEmailVerified: false,
@@ -513,19 +526,24 @@ describe('User routes', () => {
       const dbUser = await User.findById(userOne._id);
       expect(dbUser).toBeDefined();
       expect(dbUser.password).not.toBe(updateBody.password);
-      expect(dbUser).toMatchObject({ name: updateBody.name, email: updateBody.email, role: 'user' });
+      expect(dbUser).toMatchObject({
+        firstName: updateBody.firstName,
+        lastName: updateBody.lastName,
+        email: updateBody.email,
+        role: 'user',
+      });
     });
 
     test('should return 401 error if access token is missing', async () => {
       await insertUsers([userOne]);
-      const updateBody = { name: faker.name.findName() };
+      const updateBody = { lastName: faker.name.lastName() };
 
       await request(app).patch(`/v1/users/${userOne._id}`).send(updateBody).expect(httpStatus.UNAUTHORIZED);
     });
 
     test('should return 403 if user is updating another user', async () => {
       await insertUsers([userOne, userTwo]);
-      const updateBody = { name: faker.name.findName() };
+      const updateBody = { lastName: faker.name.lastName() };
 
       await request(app)
         .patch(`/v1/users/${userTwo._id}`)
@@ -536,7 +554,7 @@ describe('User routes', () => {
 
     test('should return 200 and successfully update user if admin is updating another user', async () => {
       await insertUsers([userOne, admin]);
-      const updateBody = { name: faker.name.findName() };
+      const updateBody = { lastName: faker.name.lastName() };
 
       await request(app)
         .patch(`/v1/users/${userOne._id}`)
@@ -547,7 +565,7 @@ describe('User routes', () => {
 
     test('should return 404 if admin is updating another user that is not found', async () => {
       await insertUsers([admin]);
-      const updateBody = { name: faker.name.findName() };
+      const updateBody = { lastName: faker.name.lastName() };
 
       await request(app)
         .patch(`/v1/users/${userOne._id}`)
@@ -558,7 +576,7 @@ describe('User routes', () => {
 
     test('should return 400 error if userId is not a valid mongo id', async () => {
       await insertUsers([admin]);
-      const updateBody = { name: faker.name.findName() };
+      const updateBody = { lastName: faker.name.lastName() };
 
       await request(app)
         .patch(`/v1/users/invalidId`)

@@ -10,6 +10,14 @@ components:
           format: email
         name:
           type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        company:
+          type: string
+        userName:
+          type: string
         role:
           type: string
           enum: [user, admin]

@@ -23,7 +23,7 @@ const envVarsSchema = Joi.object()
       .description('minutes after which verify email token expires'),
     SMTP_HOST: Joi.string().description('server that will send the emails'),
     SMTP_PORT: Joi.number().description('port to connect to the email server'),
-    SMTP_USERNAME: Joi.string().description('username for email server'),
+    SMTP_USERNAME: Joi.string().description('userName for email server'),
     SMTP_PASSWORD: Joi.string().description('password for email server'),
     EMAIL_FROM: Joi.string().description('the from field in the emails sent by the app'),
     FORGOT_PASSWORD_SEND_INVALID_USER_RESPONSE: Joi.bool()
@@ -61,7 +61,9 @@ const envVarsSchema = Joi.object()
       .description('This is a global option to enable or disable all captcha response validation.'),
     CAPTCHA_ROUTES: Joi.string()
       .default('')
-      .description('This is a global option to enable or disable all captcha response validation.'),
+      .description(
+        'Routes on which captcha is enabled. Should be comma separated in quotations. Example: "/register,/login"'
+      ),
     CAPTCHA_PROVIDER: Joi.string()
       .valid('reCaptchaV2', 'reCaptchaV3', 'hCaptcha')
       .default('reCaptchaV2')
@@ -79,6 +81,20 @@ const envVarsSchema = Joi.object()
     CAPTCHA_SECRET: Joi.string().description(
       'Secret issued by captcha provider Note: 6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe is Googles demo key using it wall cause all test to pass.'
     ),
+    REGISTRATION_REQUIRED_FIELDS: Joi.string()
+      .allow('')
+      .default('')
+      .description(
+        'Field in addition to userName and password required for registration. May include firstName, lastName, company or userName. Should be comma separated. Example: "firstName,lastName"'
+      ),
+    REGISTRATION_APPEND_UUID_TO_USERNAMES: Joi.bool()
+      .default('false')
+      .description(
+        "Append all userNames with a short UUID so that users don't have to try to find a unique userName. For example 'bob' would be 'bob_d8931d1b'."
+      ),
+    LOGIN_ALLOW_USERNAME: Joi.bool()
+      .default('false')
+      .description('Allows login with either username and password or email and password.'),
   })
   .unknown();
 
@@ -138,5 +154,12 @@ module.exports = {
       default: envVars.CAPTCHA_DEFAULT_SCORE_THRESHOLD,
       overrides: JSON.parse(envVars.CAPTCHA_PATH_SCORE_THRESHOLD_OVERRIDES),
     },
+  },
+  registration: {
+    requiredFields: envVars.REGISTRATION_REQUIRED_FIELDS.split(','),
+    appendUUIDtoUserNames: envVars.REGISTRATION_APPEND_UUID_TO_USERNAMES,
+  },
+  login: {
+    allowUsername: envVars.LOGIN_ALLOW_USERNAME,
   },
 };

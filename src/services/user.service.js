@@ -1,4 +1,6 @@
 const httpStatus = require('http-status');
+const uuid = require('uuid');
+const config = require('../config/config');
 const { User } = require('../models');
 const ApiError = require('../utils/ApiError');
 
@@ -8,10 +10,20 @@ const ApiError = require('../utils/ApiError');
  * @returns {Promise<User>}
  */
 const createUser = async (userBody) => {
-  if (await User.isEmailTaken(userBody.email)) {
+  const newUser = userBody;
+  if (await User.isEmailTaken(newUser.email)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
-  return User.create(userBody);
+  if (newUser.userName !== undefined) {
+    if (config.registration.appendUUIDtoUserNames) {
+      newUser.userName += `-${uuid.v4().split('-')[0]}`;
+    }
+    if (await User.isUserNameTaken(newUser.userName)) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Username already taken');
+    }
+  }
+
+  return User.create(newUser);
 };
 
 /**
@@ -44,6 +56,15 @@ const getUserById = async (id) => {
  */
 const getUserByEmail = async (email) => {
   return User.findOne({ email });
+};
+
+/**
+ * Get user by email
+ * @param {string} email
+ * @returns {Promise<User>}
+ */
+const getUserByEmailOrUserName = async (login) => {
+  return User.findOne({ $or: [{ email: login }, { userName: login }] });
 };
 
 /**
@@ -84,6 +105,7 @@ module.exports = {
   queryUsers,
   getUserById,
   getUserByEmail,
+  getUserByEmailOrUserName,
   updateUserById,
   deleteUserById,
 };

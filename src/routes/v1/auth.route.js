@@ -39,6 +39,7 @@ module.exports = router;
  * /auth/register:
  *   post:
  *     summary: Register as user
+ *     description: Fields firstName, lastName, company, and userName may be required fields if set as required fields in the REGISTRATION_REQUIRED_FIELDS .env file. You should adjust this documentation based on your configuration.
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -47,11 +48,16 @@ module.exports = router;
  *           schema:
  *             type: object
  *             required:
- *               - name
  *               - email
  *               - password
  *             properties:
- *               name:
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               company:
+ *                 type: string
+ *               userName:
  *                 type: string
  *               email:
  *                 type: string
@@ -87,7 +93,7 @@ module.exports = router;
  * /auth/login:
  *   post:
  *     summary: Login
- *     description: If MFA is enabled only a verifyMFA JWT will be returned instead of the full login { user , tokens } object. To fully login the user the verify MFA api must be called using the verifyMFA token.
+ *     description: Field login may be an email or a userName depending on if userName login is enabled in the .env config file. If MFA is enabled only a verifyMFA JWT will be returned instead of the full login { user , tokens } object. To fully login the user the verify MFA api must be called using the verifyMFA token.
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -96,12 +102,11 @@ module.exports = router;
  *           schema:
  *             type: object
  *             required:
- *               - email
+ *               - login
  *               - password
  *             properties:
- *               email:
+ *               login:
  *                 type: string
- *                 format: email
  *               password:
  *                 type: string
  *                 format: password

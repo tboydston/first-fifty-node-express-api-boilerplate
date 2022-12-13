@@ -9,7 +9,20 @@ const hashedPassword = bcrypt.hashSync(password, salt);
 
 const userOne = {
   _id: mongoose.Types.ObjectId(),
-  name: faker.name.findName(),
+  firstName: faker.name.findName(),
+  lastName: faker.name.lastName(),
+  email: faker.internet.email().toLowerCase(),
+  password,
+  role: 'user',
+  isEmailVerified: false,
+  mfaEnabled: false,
+};
+
+const userOneUserName = {
+  _id: mongoose.Types.ObjectId(),
+  firstName: faker.name.findName(),
+  lastName: faker.name.lastName(),
+  userName: faker.internet.userName(),
   email: faker.internet.email().toLowerCase(),
   password,
   role: 'user',
@@ -19,7 +32,8 @@ const userOne = {
 
 const userTwo = {
   _id: mongoose.Types.ObjectId(),
-  name: faker.name.findName(),
+  firstName: faker.name.findName(),
+  lastName: faker.name.lastName(),
   email: faker.internet.email().toLowerCase(),
   password,
   role: 'user',
@@ -29,7 +43,8 @@ const userTwo = {
 
 const admin = {
   _id: mongoose.Types.ObjectId(),
-  name: faker.name.findName(),
+  firstName: faker.name.findName(),
+  lastName: faker.name.lastName(),
   email: faker.internet.email().toLowerCase(),
   password,
   role: 'admin',
@@ -48,7 +63,8 @@ const genRandomUsers = async (num, userOverrides = {}) => {
   while (users.length < num) {
     const user = {
       _id: mongoose.Types.ObjectId(),
-      name: faker.name.findName(),
+      firstName: faker.name.findName(),
+      lastName: faker.name.lastName(),
       email: faker.internet.email().toLowerCase(),
       password,
       role: 'user',
@@ -69,6 +85,7 @@ const insertUsers = async (users) => {
 
 module.exports = {
   userOne,
+  userOneUserName,
   userTwo,
   admin,
   insertUsers,

@@ -1,3 +1,6 @@
+const Joi = require('joi');
+const config = require('../config/config');
+
 const objectId = (value, helpers) => {
   if (!value.match(/^[0-9a-fA-F]{24}$/)) {
     return helpers.message('"{{#label}}" must be a valid mongo id');
@@ -15,7 +18,41 @@ const password = (value, helpers) => {
   return value;
 };
 
+const userName = (value, helpers) => {
+  if (value.length < 3 || value.length > 30 || !value.match(/^[a-zA-Z0-9_.]+$/)) {
+    return helpers.message(`userName must be between 3 and 30 characters contain only '.' and '_'`);
+  }
+  return value;
+};
+
+const buildUserKey = () => {
+  const key = {
+    email: Joi.string().required().email(),
+    password: Joi.string().required().custom(password),
+  };
+
+  if (config.registration.requiredFields.includes('firstName')) {
+    key.firstName = Joi.string().required();
+  }
+
+  if (config.registration.requiredFields.includes('lastName')) {
+    key.lastName = Joi.string().required();
+  }
+
+  if (config.registration.requiredFields.includes('company')) {
+    key.company = Joi.string().required();
+  }
+
+  if (config.registration.requiredFields.includes('userName')) {
+    key.userName = Joi.string().required().custom(userName);
+  }
+
+  return key;
+};
+
 module.exports = {
   objectId,
   password,
+  userName,
+  buildUserKey,
 };

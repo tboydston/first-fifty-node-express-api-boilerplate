@@ -210,6 +210,16 @@ CAPTCHA_SECRET=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
 CAPTCHA_DEFAULT_SCORE_THRESHOLD=0.50
 # Override score values for specific routes. Object key should be the path returned in req.path usual "/path".
 CAPTCHA_PATH_SCORE_THRESHOLD_OVERRIDES= {"/demo":0.9}
+
+# Registration
+# Field in addition to username and password required for registration. May include firstName, lastName, company or username. Should be comma separated. Example: "firstName,lastName"
+REGISTRATION_REQUIRED_FIELDS=
+# Append all usernames with a short UUID so that users don't have to try to find a unique username. For example 'bob' would be 'bob_d8931d1b'.
+REGISTRATION_APPEND_UUID_TO_USERNAMES=false
+
+# Login
+# Allows login with either username and password or email and password.
+LOGIN_ALLOW_USERNAME=true
 ```
 
 ## Project Structure
@@ -255,6 +265,16 @@ List of available routes:
 `GET /v1/users/:userId` - get user\
 `PATCH /v1/users/:userId` - update user\
 `DELETE /v1/users/:userId` - delete user
+
+## Registration and Login fields.
+
+By defaults the only required registration fields are email and password. Additional fields may be added by setting the REGISTRATION_REQUIRED_FIELDS environment variable. Currently firstName, lastName, company, and userName may also be required. If additional fields are added you should update the swagger documentation in the auth.route.js and user.route.js files to reflect the required fields.
+
+If the REGISTRATION_APPEND_UUID_TO_USERNAMES environment variable is set to 'true' a random 8 character code will be suffixed to each username. For example the user name 'bob' would be registered as 'bob-382ae2fa'. This is to prevent users from having to hunt for unique users names. When using this feature it is best to use some other distinguishing aspect to prevent user impersonation such as using the uuid portion of the username to generate a unique avatar of user color scheme. By default usernames must be between 3 and 30 characters and may only contain alphanumeric characters and the symbols '.' and '\*' .
+
+### UserName Login
+
+Username login may be enabled by setting the LOGIN_ALLOW_USERNAME environment variable to true. If enabled. A user may login with either their email or their username.
 
 ## Error Handling
 

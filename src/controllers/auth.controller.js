@@ -1,6 +1,7 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const { authService, userService, tokenService, emailService, mfaService } = require('../services');
+const config = require('../config/config');
 
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
@@ -9,8 +10,17 @@ const register = catchAsync(async (req, res) => {
 });
 
 const login = catchAsync(async (req, res) => {
-  const { email, password } = req.body;
-  const user = await authService.loginUserWithEmailAndPassword(email, password);
+  const { password } = req.body;
+  const loginValue = req.body.login;
+
+  let user = {};
+
+  if (config.login.allowUsername) {
+    user = await authService.loginUserWithEmailOrUserNameAndPassword(loginValue, password);
+  } else {
+    user = await authService.loginUserWithEmailAndPassword(loginValue, password);
+  }
+
   let tokens = {};
 
   if (user.mfaEnabled === true) {
