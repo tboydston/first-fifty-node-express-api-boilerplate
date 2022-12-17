@@ -197,7 +197,12 @@ describe('Auth routes', () => {
 
       const res = await request(app).post('/v1/auth/login').send(loginCredentials).expect(httpStatus.UNAUTHORIZED);
 
-      expect(res.body).toEqual({ code: httpStatus.UNAUTHORIZED, message: 'Incorrect email or password' });
+      expect(res.body).toEqual(
+        expect.objectContaining({
+          code: httpStatus.UNAUTHORIZED,
+          type: 'authInvalidEmailOrPassword',
+        })
+      );
     });
 
     test('should return 401 error if password is wrong', async () => {
@@ -209,7 +214,12 @@ describe('Auth routes', () => {
 
       const res = await request(app).post('/v1/auth/login').send(loginCredentials).expect(httpStatus.UNAUTHORIZED);
 
-      expect(res.body).toEqual({ code: httpStatus.UNAUTHORIZED, message: 'Incorrect email or password' });
+      expect(res.body).toEqual(
+        expect.objectContaining({
+          code: httpStatus.UNAUTHORIZED,
+          type: 'authInvalidEmailOrPassword',
+        })
+      );
     });
   });
 

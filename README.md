@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/hagopj13/node-express-boilerplate/badge.svg?branch=master)](https://coveralls.io/github/hagopj13/node-express-boilerplate?branch=master)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-First fifty is a boilerplate/starter project for quickly building secure RESTful APIs using Node.js, Express, and Mongoose. 
+First fifty is a boilerplate/starter project for quickly building secure RESTful APIs using Node.js, Express, and Mongoose.
 
 By running a single command you can complete the first tedious 50% of your project and deliver a production-ready Node.js app installed and fully configured. The app comes with many built-in features, such as authentication using JWT, MFA, request validation, unit and integration tests, continuous integration, docker support, API documentation, pagination, etc. For more details, check the features list below.
 
@@ -296,9 +296,12 @@ The error handling middleware sends an error response, which has the following f
 ```json
 {
   "code": 404,
+  "type": "notFound"
   "message": "Not found"
 }
 ```
+
+Text for error responses can be added or edited in the src/config/errors.js file.
 
 When running in development mode, the error response also contains the error stack.
 
@@ -314,7 +317,7 @@ const User = require('../models/User');
 const getUser = async (userId) => {
   const user = await User.findById(userId);
   if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+    throw new ApiError('userNotFound');
   }
 };
 ```

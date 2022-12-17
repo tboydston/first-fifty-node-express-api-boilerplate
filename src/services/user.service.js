@@ -1,4 +1,3 @@
-const httpStatus = require('http-status');
 const uuid = require('uuid');
 const config = require('../config/config');
 const { User } = require('../models');
@@ -12,14 +11,14 @@ const ApiError = require('../utils/ApiError');
 const createUser = async (userBody) => {
   const newUser = userBody;
   if (await User.isEmailTaken(newUser.email)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+    throw new ApiError('emailTaken');
   }
   if (newUser.userName !== undefined) {
     if (config.registration.appendUUIDtoUserNames) {
       newUser.userName += `-${uuid.v4().split('-')[0]}`;
     }
     if (await User.isUserNameTaken(newUser.userName)) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Username already taken');
+      throw new ApiError('userNameTaken');
     }
   }
 
@@ -76,10 +75,10 @@ const getUserByEmailOrUserName = async (login) => {
 const updateUserById = async (userId, updateBody) => {
   const user = await getUserById(userId);
   if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+    throw new ApiError('userNotFound');
   }
   if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
+    throw new ApiError('emailTaken');
   }
   Object.assign(user, updateBody);
   await user.save();
@@ -94,7 +93,7 @@ const updateUserById = async (userId, updateBody) => {
 const deleteUserById = async (userId) => {
   const user = await getUserById(userId);
   if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+    throw new ApiError('userNotFound');
   }
   await user.remove();
   return user;

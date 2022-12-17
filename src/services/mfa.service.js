@@ -1,7 +1,6 @@
 const { authenticator } = require('otplib');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const httpStatus = require('http-status');
 const tokenService = require('./token.service');
 const userService = require('./user.service');
 const ApiError = require('../utils/ApiError');
@@ -80,20 +79,20 @@ const verifyLoginMfa = async (verifyMfaToken, mfaToken) => {
     const jwtPayload = jwt.verify(verifyMfaToken, config.jwt.secret);
 
     if (![tokenTypes.ACCESS, tokenTypes.VERIFY_MFA].includes(jwtPayload.type)) {
-      throw new Error();
+      throw new ApiError('unauthorized');
     }
 
     const user = await userService.getUserById(jwtPayload.sub);
 
     if (!user.mfaSecret || user.mfaSecret === '') {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'TOTP MFA has not been enabled for this account.');
+      throw new ApiError('mfaNotEnabled');
     }
 
     // VS CODE flags this await as unnecessary but a promise is in fact returned if await is not used.
     const toptResult = await verifyTotpToken(user.mfaSecret, mfaToken);
 
     if (toptResult !== true) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'TOTP MFA token invalid or expired.');
+      throw new ApiError('invalidMfaToken');
     }
 
     if (!user.mfaEnabled) {
@@ -107,10 +106,11 @@ const verifyLoginMfa = async (verifyMfaToken, mfaToken) => {
 
     return {};
   } catch (error) {
-    throw new ApiError(
-      error.statusCode ? error.statusCode : httpStatus.UNAUTHORIZED,
-      error.message ? error.message : 'Verify MFA failed'
-    );
+    if (error instanceof ApiError) {
+      throw error;
+    } else {
+      throw new ApiError('unknownError');
+    }
   }
 };
 
@@ -124,15 +124,12 @@ const enableTotpMfa = async (enableMfaToken) => {
     const jwtPayload = jwt.verify(enableMfaToken, config.jwt.secret);
 
     if (jwtPayload.type !== tokenTypes.ACCESS) {
-      throw new Error();
+      throw new ApiError('unauthorized');
     }
     const user = await userService.getUserById(jwtPayload.sub);
 
     if (user.mfaEnabled) {
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        'MFA already enabled. To update MFA you must disable and then enable MFA again or if you no longer have access to your MFA device, contact support.'
-      );
+      throw new ApiError('mfaAlreadyEnabled');
     }
     const mfaSecret = await generateEncryptedSecret();
     await userService.updateUserById(user.id, {
@@ -143,10 +140,11 @@ const enableTotpMfa = async (enableMfaToken) => {
       otpauth: authenticator.keyuri(user.email, config.mfa.serviceName, mfaSecret.secret),
     };
   } catch (error) {
-    throw new ApiError(
-      error.statusCode ? error.statusCode : httpStatus.UNAUTHORIZED,
-      error.message ? error.message : 'Enable MFA failed'
-    );
+    if (error instanceof ApiError) {
+      throw error;
+    } else {
+      throw new ApiError('unknownError');
+    }
   }
 };
 
@@ -161,19 +159,19 @@ const disableMfa = async (disableMfaToken, mfaToken) => {
     const jwtPayload = jwt.verify(disableMfaToken, config.jwt.secret);
 
     if (jwtPayload.type !== tokenTypes.ACCESS) {
-      throw new Error();
+      throw new ApiError('unauthorized');
     }
     const user = await userService.getUserById(jwtPayload.sub);
 
     if (!user.mfaEnabled || user.mfaSecret === '') {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'TOTP MFA has not been enabled for this account.');
+      throw new ApiError('mfaNotEnabled');
     }
 
     // VS CODE flags this await as unnecessary but a promise is in fact returned if await is not used.
     const toptResult = await verifyTotpToken(user.mfaSecret, mfaToken);
 
     if (toptResult !== true) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'TOTP MFA token invalid or expired.');
+      throw new ApiError('invalidMfaToken');
     }
 
     await userService.updateUserById(user.id, {
@@ -182,10 +180,11 @@ const disableMfa = async (disableMfaToken, mfaToken) => {
     });
     return true;
   } catch (error) {
-    throw new ApiError(
-      error.statusCode ? error.statusCode : httpStatus.UNAUTHORIZED,
-      error.message ? error.message : 'Disable MFA failed'
-    );
+    if (error instanceof ApiError) {
+      throw error;
+    } else {
+      throw new ApiError('mfaDisableFailed');
+    }
   }
 };
 

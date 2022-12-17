@@ -94,7 +94,7 @@ const generateAuthTokens = async (user) => {
 const generateResetPasswordToken = async (email) => {
   const user = await userService.getUserByEmail(email);
   if (!user && config.forgotPassword.sendInvalidUserResponse) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'No users found with this email');
+    throw new ApiError('resetPasswordInvalidEmail');
   }
   if (!user && !config.forgotPassword.sendInvalidUserResponse) {
     return false;

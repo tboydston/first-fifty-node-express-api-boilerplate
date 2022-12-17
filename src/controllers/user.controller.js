@@ -15,6 +15,7 @@ const getUsers = catchAsync(async (req, res) => {
     'email',
     'firstName',
     'lastName',
+    'company',
     'mfaEnabled',
     'mfaType',
     'isEmailVerified',
@@ -28,7 +29,7 @@ const getUsers = catchAsync(async (req, res) => {
 const getUser = catchAsync(async (req, res) => {
   const user = await userService.getUserById(req.params.userId);
   if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+    throw new ApiError('userNotFound');
   }
   res.send(user);
 });

@@ -143,7 +143,12 @@ describe('Auth routes with userName', () => {
 
       const res = await request(app).post('/v1/auth/login').send(loginCredentials).expect(httpStatus.UNAUTHORIZED);
 
-      expect(res.body).toEqual({ code: httpStatus.UNAUTHORIZED, message: 'Incorrect login or password' });
+      expect(res.body).toEqual(
+        expect.objectContaining({
+          code: httpStatus.UNAUTHORIZED,
+          type: 'authInvalidUserNameOrPassword',
+        })
+      );
     });
 
     test('should return 401 error if password is wrong', async () => {
@@ -155,7 +160,12 @@ describe('Auth routes with userName', () => {
 
       const res = await request(app).post('/v1/auth/login').send(loginCredentials).expect(httpStatus.UNAUTHORIZED);
 
-      expect(res.body).toEqual({ code: httpStatus.UNAUTHORIZED, message: 'Incorrect login or password' });
+      expect(res.body).toEqual(
+        expect.objectContaining({
+          code: httpStatus.UNAUTHORIZED,
+          type: 'authInvalidUserNameOrPassword',
+        })
+      );
     });
   });
 });

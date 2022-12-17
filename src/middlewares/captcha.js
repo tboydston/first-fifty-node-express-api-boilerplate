@@ -49,7 +49,7 @@ const verify = async (req, res, next) => {
     }
     return next();
   } catch (error) {
-    return next(new ApiError(httpStatus.UNAUTHORIZED, 'Error validating captcha.'));
+    return next(new ApiError('captchaInvalid'));
   }
 };
 

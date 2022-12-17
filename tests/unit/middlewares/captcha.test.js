@@ -76,7 +76,7 @@ describe('Captcha middlewares', () => {
       await axios.post.mockResolvedValueOnce(axiosResponse);
       await captcha.verify(req, {}, next);
       expect(next).toHaveBeenCalledWith(
-        expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, message: 'Error validating captcha.' })
+        expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, name: 'captchaInvalid' })
       );
     });
     test('should return true when result returns score, reCaptchaV3 is set, and score is above threshold.', async () => {
@@ -116,7 +116,7 @@ describe('Captcha middlewares', () => {
       await axios.post.mockResolvedValueOnce(axiosResponse);
       await captcha.verify(req, {}, next);
       expect(next).toHaveBeenCalledWith(
-        expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, message: 'Error validating captcha.' })
+        expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, name: 'captchaInvalid' })
       );
     });
     test('should return true when result returns score, hCaptcha is set, and score is above threshold.', async () => {
@@ -156,7 +156,7 @@ describe('Captcha middlewares', () => {
       await axios.post.mockResolvedValueOnce(axiosResponse);
       await captcha.verify(req, {}, next);
       expect(next).toHaveBeenCalledWith(
-        expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, message: 'Error validating captcha.' })
+        expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, name: 'captchaInvalid' })
       );
     });
     test('should return exception when score override is used for a specific path and returned score value is less than override value.', async () => {
@@ -179,7 +179,7 @@ describe('Captcha middlewares', () => {
       await axios.post.mockResolvedValueOnce(axiosResponse);
       await captcha.verify(req, {}, next);
       expect(next).toHaveBeenCalledWith(
-        expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, message: 'Error validating captcha.' })
+        expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, name: 'captchaInvalid' })
       );
     });
     test('should return exception when env is prod but test key us used.', async () => {
@@ -201,7 +201,7 @@ describe('Captcha middlewares', () => {
       await axios.post.mockResolvedValueOnce(axiosResponse);
       await captcha.verify(req, {}, next);
       expect(next).toHaveBeenCalledWith(
-        expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, message: 'Error validating captcha.' })
+        expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, name: 'captchaInvalid' })
       );
     });
   });
