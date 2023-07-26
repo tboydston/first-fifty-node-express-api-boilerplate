@@ -1,11 +1,11 @@
 const { authenticator } = require('otplib');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const tokenService = require('./token.service');
-const userService = require('./user.service');
 const ApiError = require('@utils/ApiError');
 const { tokenTypes } = require('@config/tokens');
 const config = require('@config/config');
+const userService = require('./user.service');
+const tokenService = require('./token.service');
 
 /**
  * Encrypted MFA secret.
@@ -21,9 +21,9 @@ const generateEncryptedSecret = async () => {
       config.mfa.encryptIv,
       config.mfa.encryptKeyIterations,
       config.mfa.encryptKeyLength,
-      'sha512'
+      'sha512',
     ),
-    Buffer.from(config.mfa.encryptIv, 'hex')
+    Buffer.from(config.mfa.encryptIv, 'hex'),
   );
 
   let encryptedSecret = cipher.update(secret, 'utf-8', 'hex');
@@ -45,9 +45,9 @@ const decryptSecret = async (encryptedSecret) => {
       config.mfa.encryptIv,
       config.mfa.encryptKeyIterations,
       config.mfa.encryptKeyLength,
-      'sha512'
+      'sha512',
     ),
-    Buffer.from(config.mfa.encryptIv, 'hex')
+    Buffer.from(config.mfa.encryptIv, 'hex'),
   );
 
   let decryptedSecret = decipher.update(encryptedSecret, 'hex', 'utf-8');

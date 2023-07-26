@@ -1,6 +1,6 @@
 const httpStatus = require('http-status');
 const catchAsync = require('@utils/catchAsync');
-const { authService, userService, tokenService, emailService, mfaService } = require('@services');
+const { authService, userService, tokenService, emailService, mfaService } = require('@services/');
 const config = require('@config/config');
 
 const register = catchAsync(async (req, res) => {

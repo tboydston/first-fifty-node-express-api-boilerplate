@@ -36,7 +36,7 @@
     "@middlewares": "src/middlewares",
     "@models": "src/models",
     "@routes": "src/routes",
-    "@servicse": "src/services",
+    "@services": "src/services",
     "@utils": "src/utils",
     "@validations": "src/validations"
   },

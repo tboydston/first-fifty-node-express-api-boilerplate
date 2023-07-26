@@ -29,7 +29,7 @@ const envVarsSchema = Joi.object()
     FORGOT_PASSWORD_SEND_INVALID_USER_RESPONSE: Joi.bool()
       .default('false')
       .description(
-        'If a user submits an email that does not belong to any user tell them this in the response. This can be a security risk as it allows an attacker to confirm whether a user exists or not.'
+        'If a user submits an email that does not belong to any user tell them this in the response. This can be a security risk as it allows an attacker to confirm whether a user exists or not.',
       ),
     MFA_SERVICE_NAME: Joi.string()
       .default('Test MFA Service')
@@ -46,7 +46,7 @@ const envVarsSchema = Joi.object()
     MFA_ENCRYPTION_KEY_LENGTH: Joi.number()
       .default(32)
       .description(
-        'MFA Key length. If you change the MFA_ENCRYPTION_ALGO you many need to adjust this to match the new ciphers key length.'
+        'MFA Key length. If you change the MFA_ENCRYPTION_ALGO you many need to adjust this to match the new ciphers key length.',
       ),
     MFA_ENCRYPTION_KEY_ITERATIONS: Joi.number()
       .default(10)
@@ -54,7 +54,7 @@ const envVarsSchema = Joi.object()
     MFA_ENCRYPTION_IV: Joi.string()
       .default('fb1f4b0a7daaada6cae678df32fad0f0')
       .description(
-        'Initialization Vector used encrypt MFA secrets stored in database. Size is dependant on chosen cipher algorithm.'
+        'Initialization Vector used encrypt MFA secrets stored in database. Size is dependant on chosen cipher algorithm.',
       ),
     CAPTCHA_ENABLED: Joi.bool()
       .default('false')
@@ -62,7 +62,7 @@ const envVarsSchema = Joi.object()
     CAPTCHA_ROUTES: Joi.string()
       .default('')
       .description(
-        'Routes on which captcha is enabled. Should be comma separated in quotations. Example: "/register,/login"'
+        'Routes on which captcha is enabled. Should be comma separated in quotations. Example: "/register,/login"',
       ),
     CAPTCHA_PROVIDER: Joi.string()
       .valid('reCaptchaV2', 'reCaptchaV3', 'hCaptcha')
@@ -71,26 +71,26 @@ const envVarsSchema = Joi.object()
     CAPTCHA_DEFAULT_SCORE_THRESHOLD: Joi.number()
       .default(0.5)
       .description(
-        'Threshold uses when no specific override is defined. Note: Only used by reCaptchaV3 and hCaptcha enterprise. Also note reCaptcha and hCaptcha us inverse scoring methods so make sure to invert the value if you switch providers.'
+        'Threshold uses when no specific override is defined. Note: Only used by reCaptchaV3 and hCaptcha enterprise. Also note reCaptcha and hCaptcha us inverse scoring methods so make sure to invert the value if you switch providers.',
       ),
     CAPTCHA_PATH_SCORE_THRESHOLD_OVERRIDES: Joi.string()
       .default('{}')
       .description(
-        'Override score values for specific routes. Object key should be the path returned in req.path usual "/path".'
+        'Override score values for specific routes. Object key should be the path returned in req.path usual "/path".',
       ),
     CAPTCHA_SECRET: Joi.string().description(
-      'Secret issued by captcha provider Note: 6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe is Googles demo key using it wall cause all test to pass.'
+      'Secret issued by captcha provider Note: 6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe is Googles demo key using it wall cause all test to pass.',
     ),
     REGISTRATION_REQUIRED_FIELDS: Joi.string()
       .allow('')
       .default('')
       .description(
-        'Field in addition to userName and password required for registration. May include firstName, lastName, company or userName. Should be comma separated. Example: "firstName,lastName"'
+        'Field in addition to userName and password required for registration. May include firstName, lastName, company or userName. Should be comma separated. Example: "firstName,lastName"',
       ),
     REGISTRATION_APPEND_UUID_TO_USERNAMES: Joi.bool()
       .default('false')
       .description(
-        "Append all userNames with a short UUID so that users don't have to try to find a unique userName. For example 'bob' would be 'bob_d8931d1b'."
+        "Append all userNames with a short UUID so that users don't have to try to find a unique userName. For example 'bob' would be 'bob_d8931d1b'.",
       ),
     LOGIN_ALLOW_USERNAME: Joi.bool()
       .default('false')
