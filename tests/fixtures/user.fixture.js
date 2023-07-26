@@ -8,7 +8,7 @@ const salt = bcrypt.genSaltSync(8);
 const hashedPassword = bcrypt.hashSync(password, salt);
 
 const userOne = {
-  _id: mongoose.Types.ObjectId(),
+  _id: new mongoose.Types.ObjectId(),
   firstName: faker.name.findName(),
   lastName: faker.name.lastName(),
   email: faker.internet.email().toLowerCase(),
@@ -19,7 +19,7 @@ const userOne = {
 };
 
 const userOneUserName = {
-  _id: mongoose.Types.ObjectId(),
+  _id: new mongoose.Types.ObjectId(),
   firstName: faker.name.findName(),
   lastName: faker.name.lastName(),
   userName: faker.internet.userName(),
@@ -31,7 +31,7 @@ const userOneUserName = {
 };
 
 const userTwo = {
-  _id: mongoose.Types.ObjectId(),
+  _id: new mongoose.Types.ObjectId(),
   firstName: faker.name.findName(),
   lastName: faker.name.lastName(),
   email: faker.internet.email().toLowerCase(),
@@ -42,7 +42,7 @@ const userTwo = {
 };
 
 const admin = {
-  _id: mongoose.Types.ObjectId(),
+  _id: new mongoose.Types.ObjectId(),
   firstName: faker.name.findName(),
   lastName: faker.name.lastName(),
   email: faker.internet.email().toLowerCase(),
@@ -62,7 +62,7 @@ const genRandomUsers = async (num, userOverrides = {}) => {
   const users = [];
   while (users.length < num) {
     const user = {
-      _id: mongoose.Types.ObjectId(),
+      _id: new mongoose.Types.ObjectId(),
       firstName: faker.name.findName(),
       lastName: faker.name.lastName(),
       email: faker.internet.email().toLowerCase(),

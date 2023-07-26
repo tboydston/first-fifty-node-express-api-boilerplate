@@ -95,7 +95,7 @@ const deleteUserById = async (userId) => {
   if (!user) {
     throw new ApiError('userNotFound');
   }
-  await user.remove();
+  await user.deleteOne();
   return user;
 };
 
