@@ -1,10 +1,10 @@
 const express = require('express');
-const config = require('../../config/config');
-const validate = require('../../middlewares/validate');
-const captcha = require('../../middlewares/captcha');
-const authValidation = require('../../validations/auth.validation');
-const authController = require('../../controllers/auth.controller');
-const auth = require('../../middlewares/auth');
+const config = require('@config/config');
+const validate = require('@middlewares/validate');
+const captcha = require('@middlewares/captcha');
+const authValidation = require('@validations/auth.validation');
+const authController = require('@controllers/auth.controller');
+const auth = require('@middlewares/auth');
 
 const router = express.Router();
 

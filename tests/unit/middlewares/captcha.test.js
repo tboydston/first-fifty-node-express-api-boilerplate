@@ -1,6 +1,6 @@
 const axios = require('axios');
 const httpStatus = require('http-status');
-const captcha = require('../../../src/middlewares/captcha');
+const captcha = require('@middlewares/captcha');
 
 jest.mock('axios');
 

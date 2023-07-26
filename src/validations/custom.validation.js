@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const config = require('../config/config');
+const config = require('@config/config');
 
 const objectId = (value, helpers) => {
   if (!value.match(/^[0-9a-fA-F]{24}$/)) {

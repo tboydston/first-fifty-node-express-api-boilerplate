@@ -1,4 +1,4 @@
-const mfaService = require('../../../src/services/mfa.service');
+const mfaService = require('@services/mfa.service');
 
 describe('Mfa service', () => {
   let secret = '';

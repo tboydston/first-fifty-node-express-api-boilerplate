@@ -5,10 +5,10 @@ process.env.REGISTRATION_APPEND_UUID_TO_USERNAMES = false;
 const request = require('supertest');
 const faker = require('faker');
 const httpStatus = require('http-status');
-const app = require('../../src/app');
+const app = require('@src/app');
 const setupTestDB = require('../utils/setupTestDB');
-const config = require('../../src/config/config');
-const { User } = require('../../src/models');
+const config = require('@config/config');
+const { User } = require('@models');
 const { userOneUserName, insertUsers } = require('../fixtures/user.fixture');
 
 setupTestDB();

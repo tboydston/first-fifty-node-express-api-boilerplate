@@ -1,7 +1,7 @@
 const uuid = require('uuid');
-const config = require('../config/config');
-const { User } = require('../models');
-const ApiError = require('../utils/ApiError');
+const config = require('@config/config');
+const { User } = require('@models');
+const ApiError = require('@utils/ApiError');
 
 /**
  * Create a user

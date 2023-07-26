@@ -3,9 +3,9 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const tokenService = require('./token.service');
 const userService = require('./user.service');
-const ApiError = require('../utils/ApiError');
-const { tokenTypes } = require('../config/tokens');
-const config = require('../config/config');
+const ApiError = require('@utils/ApiError');
+const { tokenTypes } = require('@config/tokens');
+const config = require('@config/config');
 
 /**
  * Encrypted MFA secret.

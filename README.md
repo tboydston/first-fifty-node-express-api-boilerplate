@@ -283,7 +283,7 @@ The app has a centralized error handling mechanism.
 Controllers should try to catch the errors and forward them to the error handling middleware (by calling `next(error)`). For convenience, you can also wrap the controller inside the catchAsync utility wrapper, which forwards the error.
 
 ```javascript
-const catchAsync = require('../utils/catchAsync');
+const catchAsync = require('@utils/catchAsync');
 
 const controller = catchAsync(async (req, res) => {
   // this error will be forwarded to the error handling middleware
@@ -311,8 +311,8 @@ For example, if you are trying to get a user from the DB who is not found, and y
 
 ```javascript
 const httpStatus = require('http-status');
-const ApiError = require('../utils/ApiError');
-const User = require('../models/User');
+const ApiError = require('@utils/ApiError');
+const User = require('@models/User');
 
 const getUser = async (userId) => {
   const user = await User.findById(userId);
@@ -330,9 +330,9 @@ The validation schemas are defined in the `src/validations` directory and are us
 
 ```javascript
 const express = require('express');
-const validate = require('../../middlewares/validate');
-const userValidation = require('../../validations/user.validation');
-const userController = require('../../controllers/user.controller');
+const validate = require('@middlewares/validate');
+const userValidation = require('@validations/user.validation');
+const userController = require('@controllers/user.controller');
 
 const router = express.Router();
 
@@ -345,8 +345,8 @@ To require authentication for certain routes, you can use the `auth` middleware.
 
 ```javascript
 const express = require('express');
-const auth = require('../../middlewares/auth');
-const userController = require('../../controllers/user.controller');
+const auth = require('@middlewares/auth');
+const userController = require('@controllers/user.controller');
 
 const router = express.Router();
 
@@ -373,8 +373,8 @@ The `auth` middleware can also be used to require certain rights/permissions to 
 
 ```javascript
 const express = require('express');
-const auth = require('../../middlewares/auth');
-const userController = require('../../controllers/user.controller');
+const auth = require('@middlewares/auth');
+const userController = require('@controllers/user.controller');
 
 const router = express.Router();
 
@@ -526,6 +526,50 @@ To modify the ESLint configuration, update the `.eslintrc.json` file. To modify 
 To prevent a certain file or directory from being linted, add it to `.eslintignore` and `.prettierignore`.
 
 To maintain a consistent coding style across different IDEs, the project contains `.editorconfig`
+
+## Path Aliasing
+
+Path Aliasing e.g.  `` require('@control/user') `` as opposed to `` require('../../../user') `` is done with the [module-alias](https://www.npmjs.com/package/module-alias) module. Aliases may be managed by updating the following section of the package.json file.
+
+```
+
+"_moduleAliases": {
+  "@root": ".",
+  "@src": "src",
+  "@config": "src/config",
+  "@helpers": "src/helpers",
+  "@controllers": "src/controllers",
+  "@docs": "src/docs",
+  "@middlewares": "src/middlewares",
+  "@models": "src/models",
+  "@routes": "src/routes",
+  "@servicse": "src/services",
+  "@utils": "src/utils",
+  "@validations": "src/validations"
+},
+
+```
+
+Jest manages it's own aliases so you will also need to manage the aliases in the jest.config.js file.
+
+```
+
+  moduleNameMapper: {
+  "^@root(.*)$": "<rootDir>/$1",
+  "^@src(.*)$": "<rootDir>/src/$1",
+  "^@config(.*)$": "<rootDir>/src/config/$1",
+  "^@helpers(.*)$": "<rootDir>/src/helpers/$1",
+  "^@controllers(.*)$": "<rootDir>/src/controllers/$1",
+  "^@docs(.*)$": "<rootDir>/src/docs/$1",
+  "^@middlewares(.*)$": "<rootDir>/src/middlewares/$1",
+  "^@models(.*)$": "<rootDir>/src/models/$1",
+  "^@routes(.*)$": "<rootDir>/src/routes/$1",
+  "^@utils(.*)$": "<rootDir>/src/utils/$1",
+  "^@services(.*)$": "<rootDir>/src/services/$1",
+  "^@validations(.*)$": "<rootDir>/src/validations/$1"
+},
+
+```
 
 ## Contributing
 

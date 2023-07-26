@@ -1,4 +1,4 @@
-const errorTypes = require('../config/errors');
+const errorTypes = require('@config/errors');
 
 class ApiError extends Error {
   constructor(error, isOperational = true, stack = '') {
