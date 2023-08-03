@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const faker = require('faker');
+const { faker } = require('@faker-js/faker');
 const User = require('@models/user.model');
 
 const password = 'password1';
@@ -9,8 +9,8 @@ const hashedPassword = bcrypt.hashSync(password, salt);
 
 const userOne = {
   _id: new mongoose.Types.ObjectId(),
-  firstName: faker.name.findName(),
-  lastName: faker.name.lastName(),
+  firstName: faker.person.firstName(),
+  lastName: faker.person.lastName(),
   email: faker.internet.email().toLowerCase(),
   password,
   role: 'user',
@@ -20,8 +20,8 @@ const userOne = {
 
 const userOneUserName = {
   _id: new mongoose.Types.ObjectId(),
-  firstName: faker.name.findName(),
-  lastName: faker.name.lastName(),
+  firstName: faker.person.firstName(),
+  lastName: faker.person.lastName(),
   userName: faker.internet.userName(),
   email: faker.internet.email().toLowerCase(),
   password,
@@ -32,8 +32,8 @@ const userOneUserName = {
 
 const userTwo = {
   _id: new mongoose.Types.ObjectId(),
-  firstName: faker.name.findName(),
-  lastName: faker.name.lastName(),
+  firstName: faker.person.firstName(),
+  lastName: faker.person.lastName(),
   email: faker.internet.email().toLowerCase(),
   password,
   role: 'user',
@@ -43,8 +43,8 @@ const userTwo = {
 
 const admin = {
   _id: new mongoose.Types.ObjectId(),
-  firstName: faker.name.findName(),
-  lastName: faker.name.lastName(),
+  firstName: faker.person.firstName(),
+  lastName: faker.person.lastName(),
   email: faker.internet.email().toLowerCase(),
   password,
   role: 'admin',
@@ -63,8 +63,8 @@ const genRandomUsers = async (num, userOverrides = {}) => {
   while (users.length < num) {
     const user = {
       _id: new mongoose.Types.ObjectId(),
-      firstName: faker.name.findName(),
-      lastName: faker.name.lastName(),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
       email: faker.internet.email().toLowerCase(),
       password,
       role: 'user',

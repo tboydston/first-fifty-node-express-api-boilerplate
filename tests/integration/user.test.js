@@ -3,7 +3,7 @@ process.env.LOGIN_ALLOW_USERNAME = false;
 process.env.REGISTRATION_APPEND_UUID_TO_USERNAMES = false;
 
 const request = require('supertest');
-const faker = require('faker');
+const { faker } = require('@faker-js/faker');
 const httpStatus = require('http-status');
 const app = require('../../src/app');
 const setupTestDB = require('../utils/setupTestDB');
@@ -19,8 +19,8 @@ describe('User routes', () => {
 
     beforeEach(() => {
       basicUser = {
-        firstName: faker.name.firstName(),
-        lastName: faker.name.lastName(),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
         email: faker.internet.email().toLowerCase(),
         password: 'password1',
         role: 'user',
@@ -499,8 +499,8 @@ describe('User routes', () => {
     test('should return 200 and successfully update user if data is ok', async () => {
       await insertUsers([userOne]);
       const updateBody = {
-        firstName: faker.name.firstName(),
-        lastName: faker.name.lastName(),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
         email: faker.internet.email().toLowerCase(),
         password: 'newPassword1',
       };
@@ -536,14 +536,14 @@ describe('User routes', () => {
 
     test('should return 401 error if access token is missing', async () => {
       await insertUsers([userOne]);
-      const updateBody = { lastName: faker.name.lastName() };
+      const updateBody = { lastName: faker.person.lastName() };
 
       await request(app).patch(`/v1/users/${userOne._id}`).send(updateBody).expect(httpStatus.UNAUTHORIZED);
     });
 
     test('should return 403 if user is updating another user', async () => {
       await insertUsers([userOne, userTwo]);
-      const updateBody = { lastName: faker.name.lastName() };
+      const updateBody = { lastName: faker.person.lastName() };
 
       await request(app)
         .patch(`/v1/users/${userTwo._id}`)
@@ -554,7 +554,7 @@ describe('User routes', () => {
 
     test('should return 200 and successfully update user if admin is updating another user', async () => {
       await insertUsers([userOne, admin]);
-      const updateBody = { lastName: faker.name.lastName() };
+      const updateBody = { lastName: faker.person.lastName() };
 
       await request(app)
         .patch(`/v1/users/${userOne._id}`)
@@ -565,7 +565,7 @@ describe('User routes', () => {
 
     test('should return 404 if admin is updating another user that is not found', async () => {
       await insertUsers([admin]);
-      const updateBody = { lastName: faker.name.lastName() };
+      const updateBody = { lastName: faker.person.lastName() };
 
       await request(app)
         .patch(`/v1/users/${userOne._id}`)
@@ -576,7 +576,7 @@ describe('User routes', () => {
 
     test('should return 400 error if userId is not a valid mongo id', async () => {
       await insertUsers([admin]);
-      const updateBody = { lastName: faker.name.lastName() };
+      const updateBody = { lastName: faker.person.lastName() };
 
       await request(app)
         .patch(`/v1/users/invalidId`)

@@ -3,7 +3,7 @@ process.env.LOGIN_ALLOW_USERNAME = true;
 process.env.REGISTRATION_APPEND_UUID_TO_USERNAMES = false;
 
 const request = require('supertest');
-const faker = require('faker');
+const { faker } = require('@faker-js/faker');
 const httpStatus = require('http-status');
 const app = require('@src/app');
 const setupTestDB = require('../utils/setupTestDB');
@@ -18,8 +18,8 @@ describe('Auth routes with userName', () => {
     let newUser;
     beforeEach(() => {
       newUser = {
-        firstName: faker.name.firstName(),
-        lastName: faker.name.lastName(),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
         userName: faker.internet.userName(),
         email: faker.internet.email().toLowerCase(),
         password: 'password1',
@@ -180,8 +180,8 @@ describe('Auth routes with userName and random uuid suffix', () => {
 
     beforeEach(() => {
       newUser = {
-        firstName: faker.name.firstName(),
-        lastName: faker.name.lastName(),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
         userName: faker.internet.userName(),
         email: faker.internet.email().toLowerCase(),
         password: 'password1',

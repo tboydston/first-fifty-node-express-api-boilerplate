@@ -2,7 +2,7 @@ process.env.REGISTRATION_REQUIRED_FIELDS = 'firstName,lastName';
 process.env.LOGIN_ALLOW_USERNAME = false;
 
 const request = require('supertest');
-const faker = require('faker');
+const { faker } = require('@faker-js/faker');
 const httpStatus = require('http-status');
 const httpMocks = require('node-mocks-http');
 const moment = require('moment');
@@ -29,8 +29,8 @@ describe('Auth routes', () => {
     let newUser;
     beforeEach(() => {
       newUser = {
-        firstName: faker.name.firstName(),
-        lastName: faker.name.lastName(),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
         email: faker.internet.email().toLowerCase(),
         password: 'password1',
       };
@@ -103,8 +103,8 @@ describe('Auth routes', () => {
 
     beforeEach(() => {
       newUser = {
-        firstName: faker.name.firstName(),
-        lastName: faker.name.lastName(),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
         email: faker.internet.email().toLowerCase(),
         password: 'password1',
       };

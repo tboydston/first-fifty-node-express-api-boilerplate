@@ -460,7 +460,7 @@ const userSchema = mongoose.Schema(
   {
     /* schema definition here */
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 userSchema.plugin(toJSON);
@@ -529,7 +529,7 @@ To maintain a consistent coding style across different IDEs, the project contain
 
 ## Path Aliasing
 
-Path Aliasing e.g.  `` require('@control/user') `` as opposed to `` require('../../../user') `` is done with the [module-alias](https://www.npmjs.com/package/module-alias) module. Aliases may be managed by updating the following section of the package.json file.
+Path Aliasing e.g. `require('@control/user')` as opposed to `require('../../../user')` is done with the [module-alias](https://www.npmjs.com/package/module-alias) module. Aliases may be managed by updating the following section of the package.json file.
 
 ```
 
@@ -570,6 +570,38 @@ Jest manages it's own aliases so you will also need to manage the aliases in the
 },
 
 ```
+
+## Adding Environment Variables
+
+To add or update environment variables you must modify several files. After completing these steps the variable with be available in the config object.
+
+1. config/config.js: In this file first add the Joi validation for your env variable to the envVarsSchema object. Then at the bottom of the file add the verified variable to the module exports.
+
+Validation
+
+```
+const envVarsSchema = Joi.object()
+.keys({
+  NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),
+  FRONTEND_URL: Joi.string()
+    .valid('production', 'development', 'test')
+    .required()
+    .description('URL of frontend. May be a dummy URL in dev environment.'),
+    ...
+```
+
+Module Exports
+
+```
+module.exports = {
+  env: envVars.NODE_ENV,
+  port: envVars.PORT,
+  frontEndUrl: envVars.FRONTEND_URL,
+  ..
+```
+
+2. Next update the .env.example file with your new variable.
+3. Last update the ReadMe file with details about this variable.
 
 ## Contributing
 
