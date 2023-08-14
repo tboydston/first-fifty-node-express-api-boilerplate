@@ -201,7 +201,7 @@ describe('Auth routes', () => {
         expect.objectContaining({
           code: httpStatus.UNAUTHORIZED,
           type: 'authInvalidEmailOrPassword',
-        })
+        }),
       );
     });
 
@@ -218,7 +218,7 @@ describe('Auth routes', () => {
         expect.objectContaining({
           code: httpStatus.UNAUTHORIZED,
           type: 'authInvalidEmailOrPassword',
-        })
+        }),
       );
     });
   });
@@ -725,7 +725,7 @@ describe('POST /v1/auth/disable-mfa', () => {
     const token = await tokenService.generateToken(
       userId,
       moment().add(config.jwt.accessExpirationMinutes, 'minutes'),
-      tokenTypes.ACCESS
+      tokenTypes.ACCESS,
     );
 
     await request(app)
@@ -753,7 +753,7 @@ describe('POST /v1/auth/disable-mfa', () => {
     const token = await tokenService.generateToken(
       userId,
       moment().add(config.jwt.accessExpirationMinutes, 'minutes'),
-      tokenTypes.ACCESS
+      tokenTypes.ACCESS,
     );
 
     await request(app)
@@ -776,7 +776,7 @@ describe('POST /v1/auth/disable-mfa', () => {
     const token = await tokenService.generateToken(
       userId,
       moment().add(config.jwt.accessExpirationMinutes, 'minutes'),
-      tokenTypes.ACCESS
+      tokenTypes.ACCESS,
     );
 
     await request(app)
@@ -789,7 +789,7 @@ describe('POST /v1/auth/disable-mfa', () => {
     const testUser = (await genRandomUsers(1))[0];
     const encryptedMfaSecret = await mfaService.generateEncryptedSecret();
 
-    testUser.mfaEnabled = false;
+    testUser.mfaEnabled = true;
     testUser.mfaSecret = encryptedMfaSecret.encryptedSecret;
 
     const userId = testUser._id.toString();
@@ -799,7 +799,7 @@ describe('POST /v1/auth/disable-mfa', () => {
     const token = await tokenService.generateToken(
       userId,
       moment().add(config.jwt.accessExpirationMinutes, 'minutes'),
-      tokenTypes.ACCESS
+      tokenTypes.ACCESS,
     );
 
     await request(app)
@@ -831,7 +831,7 @@ describe('Auth middleware', () => {
 
     expect(next).toHaveBeenCalledWith(expect.any(ApiError));
     expect(next).toHaveBeenCalledWith(
-      expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, message: 'Please authenticate' })
+      expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, message: 'Please authenticate' }),
     );
   });
 
@@ -844,7 +844,7 @@ describe('Auth middleware', () => {
 
     expect(next).toHaveBeenCalledWith(expect.any(ApiError));
     expect(next).toHaveBeenCalledWith(
-      expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, message: 'Please authenticate' })
+      expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, message: 'Please authenticate' }),
     );
   });
 
@@ -859,7 +859,7 @@ describe('Auth middleware', () => {
 
     expect(next).toHaveBeenCalledWith(expect.any(ApiError));
     expect(next).toHaveBeenCalledWith(
-      expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, message: 'Please authenticate' })
+      expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, message: 'Please authenticate' }),
     );
   });
 
@@ -874,7 +874,7 @@ describe('Auth middleware', () => {
 
     expect(next).toHaveBeenCalledWith(expect.any(ApiError));
     expect(next).toHaveBeenCalledWith(
-      expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, message: 'Please authenticate' })
+      expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, message: 'Please authenticate' }),
     );
   });
 
@@ -889,7 +889,7 @@ describe('Auth middleware', () => {
 
     expect(next).toHaveBeenCalledWith(expect.any(ApiError));
     expect(next).toHaveBeenCalledWith(
-      expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, message: 'Please authenticate' })
+      expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, message: 'Please authenticate' }),
     );
   });
 
@@ -901,7 +901,7 @@ describe('Auth middleware', () => {
 
     expect(next).toHaveBeenCalledWith(expect.any(ApiError));
     expect(next).toHaveBeenCalledWith(
-      expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, message: 'Please authenticate' })
+      expect.objectContaining({ statusCode: httpStatus.UNAUTHORIZED, message: 'Please authenticate' }),
     );
   });
 
